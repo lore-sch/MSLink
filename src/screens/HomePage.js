@@ -1,3 +1,4 @@
+//Homepage: Shows login button and signup button
 import { useState } from "react";
 import {
   StyleSheet,
@@ -9,31 +10,39 @@ import {
 import LogIn from "./LogIn";
 import SignUp from "./SignUp";
 
+//Button styling and set up
 const SquareButton = ({ title, onPress }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
     <Text style={styles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );
 
+//modals for login and sign up pages
 const HomePage = () => {
-    const [loginModalVisible, setLoginModalVisible] = useState(false);
-    const [signupModalVisible, setSignupModalVisible] = useState(false);
-  
-    const openLogIn = () => {
-      setLoginModalVisible(true);
-    };
-  
-    const openSignUp = () => {
-      setSignupModalVisible(true);
-    };
+  const [loginModalVisible, setLoginModalVisible] = useState(false);
+  const [signupModalVisible, setSignupModalVisible] = useState(false);
+
+  const openLogIn = () => {
+    setLoginModalVisible(true);
+  };
+
+  const openSignUp = () => {
+    setSignupModalVisible(true);
+  };
   return (
     <SafeAreaView>
       <View style={styles.buttonContainer}>
         <SquareButton title="Log in" onPress={openLogIn} />
         <SquareButton title="Sign up" onPress={openSignUp} />
       </View>
-      <LogIn showModal={loginModalVisible} setShowModal={setLoginModalVisible} />
-      <SignUp showModal={signupModalVisible} setShowModal={setSignupModalVisible} />
+      <LogIn
+        showModal={loginModalVisible}
+        setShowModal={setLoginModalVisible}
+      />
+      <SignUp
+        showModal={signupModalVisible}
+        setShowModal={setSignupModalVisible}
+      />
     </SafeAreaView>
   );
 };

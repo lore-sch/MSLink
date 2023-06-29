@@ -1,3 +1,4 @@
+//Signup modal accessible from home page
 import { useState } from "react";
 import {
   View,
@@ -9,12 +10,16 @@ import {
   Modal,
 } from "react-native";
 
+//button styling and set up
 const SquareButton = ({ title, onPress }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
     <Text style={styles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );
 
+//modal to handle entered email address, password
+//TO DO: Verify passwords match 
+//TO DO: Post
 const SignUp = ({ showModal, setShowModal }) => {
   const [enteredEmailAddress, setEnteredEmailAddress] = useState("");
   const [enteredPassword, setEnteredPassword] = useState("");
