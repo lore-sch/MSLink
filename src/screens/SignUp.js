@@ -8,7 +8,9 @@ import {
   TextInput,
   SafeAreaView,
   Modal,
+  Platform
 } from "react-native";
+import axios from "axios";
 
 //button styling and set up
 const SquareButton = ({ title, onPress }) => (
@@ -18,12 +20,14 @@ const SquareButton = ({ title, onPress }) => (
 );
 
 //modal to handle entered email address, password
-//TO DO: Verify passwords match 
+//TO DO: Verify passwords match
 //TO DO: Post
 const SignUp = ({ showModal, setShowModal }) => {
   const [enteredEmailAddress, setEnteredEmailAddress] = useState("");
   const [enteredPassword, setEnteredPassword] = useState("");
-  const [enteredPasswordConfirmation, setEnteredPasswordConfirmation] = useState("");
+  const [enteredPasswordConfirmation, setEnteredPasswordConfirmation] =
+    useState("");
+  const [passwordMatchError, setpasswordMatchError] = useState(false);
 
   const emailHandler = (enteredEmailAddress) => {
     setEnteredEmailAddress(enteredEmailAddress);
@@ -37,10 +41,27 @@ const SignUp = ({ showModal, setShowModal }) => {
     setEnteredPasswordConfirmation(enteredPasswordConfirmation);
   };
 
-  const signUpHandler = () => {
-    console.log(enteredEmailAddress);
-    console.log(enteredPassword);
-    console.log(enteredPasswordConfirmation);
+  const signUpHandler = async () => {
+    if (enteredPassword !== enteredPasswordConfirmation) {
+      setpasswordMatchError(true);
+      return;
+    }
+    let apiUrl = "http://localhost:3000/SignUp"; // Default API URL for iOS
+  
+    if (Platform.OS === "android") {
+      apiUrl = "http://10.0.2.2:3000/SignUp"; // Override API URL for Android
+    }
+  
+    try {
+      const response = await axios.post(apiUrl, {
+        userEmail: enteredEmailAddress,
+        userPassword: enteredPasswordConfirmation,
+      });
+  
+      
+    } catch (error) {
+    
+    }
   };
 
   return (
@@ -67,9 +88,15 @@ const SignUp = ({ showModal, setShowModal }) => {
             onChangeText={passwordConfirmationHandler}
             secureTextEntry={true}
           />
+           {passwordMatchError && (
+              <Text style={styles.errorMessage}>
+                Passwords do not match. Please try again.
+              </Text>
+            )}
           <View style={styles.buttonContainer}>
             <SquareButton title="Sign Up" onPress={signUpHandler} />
             <SquareButton title="Cancel" onPress={() => setShowModal(false)} />
+           
           </View>
         </View>
       </SafeAreaView>
@@ -115,6 +142,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "white",
   },
+  errorMessage: {
+    color: 'red'
+  }
 });
 
 export default SignUp;

@@ -7,7 +7,7 @@ import { View } from "react-native"
 const App = () => {
   return (
     <View>
-      <ProfilePage />
+      <HomePage />
     </View>
   );
 };
