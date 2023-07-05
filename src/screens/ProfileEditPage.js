@@ -1,5 +1,5 @@
 //User profile page
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   View,
   Text,
@@ -8,35 +8,34 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import Story from "../components/Story";
+} from 'react-native'
+import { Feather } from '@expo/vector-icons'
+import Story from '../components/Story'
 
 //event handlers for editing user name
 //TO DO: Set up image selection and user change image ?? image picker
 const ProfileEditPage = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [username, setUsername] = useState("Jane Doe");
-
+  const [isEditing, setIsEditing] = useState(false)
+  const [username, setUsername] = useState('Jane Doe')
 
   const handleEditProfile = () => {
-    setIsEditing(true);
-  };
+    setIsEditing(true)
+  }
 
   const handleSaveProfile = () => {
-    setIsEditing(false);
-  };
+    setIsEditing(false)
+  }
 
   //username should be  called from database
   const handleCancelEdit = () => {
-    setIsEditing(false);
-    setUsername("");
-  };
+    setIsEditing(false)
+    setUsername('Jane Doe')
+  }
 
   //database needs to update
   const handleChangeUsername = (text) => {
-    setUsername(text);
-  };
+    setUsername(text)
+  }
 
   //conditional rendering- checks if text or textInput
   //conditional rendering- event handlers to display save tick or cancel x, exit edit mode, edit username or story
@@ -44,7 +43,7 @@ const ProfileEditPage = () => {
     <View style={styles.container}>
       <View style={styles.profilePictureContainer}>
         <Image
-          source={require("../../assets/avatar.jpeg")}
+          source={require('../../assets/avatar.jpeg')}
           style={styles.profilePicture}
         />
       </View>
@@ -90,23 +89,25 @@ const ProfileEditPage = () => {
         </View>
       )}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    justifyContent: "center",
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fcfbfa',
   },
   profilePictureContainer: {
     width: 150,
     height: 150,
     borderWidth: 2,
     borderRadius: 75,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
-    marginTop: 150,
+    marginTop: 70,
   },
   profilePicture: {
     width: 140,
@@ -115,13 +116,13 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "deepskyblue",
+    fontWeight: 'bold',
+    color: 'deepskyblue',
   },
   editUsername: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "deepskyblue",
+    fontWeight: 'bold',
+    color: 'deepskyblue',
     marginBottom: 10,
   },
   storyContainer: {
@@ -129,32 +130,30 @@ const styles = StyleSheet.create({
     height: 200,
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: "white",
-    marginVertical: 20,
+    borderColor: 'white',
   },
   storyContent: {
     paddingTop: 10,
-    paddingBottom: 10
+    paddingBottom: 10,
   },
   editButtonsContainer: {
-    flexDirection: "row",
-    marginTop: 10,
+    flexDirection: 'row',
   },
   editButton: {
     marginLeft: 10,
-    backgroundColor: "deepskyblue",
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'deepskyblue',
+    borderRadius: 20,
+    width: 35,
+    height: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   editButtonProfile: {
-    flexDirection: "row",
-    position: "absolute",
+    flexDirection: 'row',
+    position: 'absolute',
     top: 50,
     right: 20,
   },
-});
+})
 
-export default ProfileEditPage;
+export default ProfileEditPage

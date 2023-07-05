@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   View,
   StyleSheet,
@@ -6,44 +6,42 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  Platform
-} from "react-native";
-import axios from "axios";
+  Platform,
+} from 'react-native'
+import axios from 'axios'
 
 const SquareSaveButton = ({ title, onPress }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
     <Text style={styles.buttonText}>{title}</Text>
   </TouchableOpacity>
-);
+)
 
 const ProfileSetupPage = () => {
-  const [enteredUsername, setEnteredUsername] = useState("");
-  const [enteredStory, setEnteredStory] = useState("");
+  const [enteredUsername, setEnteredUsername] = useState('')
+  const [enteredStory, setEnteredStory] = useState('')
 
   const usernameHandler = (enteredUsername) => {
-    setEnteredUsername(enteredUsername);
-  };
+    setEnteredUsername(enteredUsername)
+  }
 
   const storyHandler = (enteredStory) => {
-    setEnteredStory(enteredStory);
-  };
+    setEnteredStory(enteredStory)
+  }
 
-  
   const saveProfileHandler = async () => {
-    let apiUrl = "http://localhost:3000/ProfileSetupPage"; // Default API URL for iOS
-    if (Platform.OS === "android") {
-      apiUrl = "http://10.0.2.2:3000/ProfileSetupPage"; // Override API URL for Android
+    let apiUrl = 'http://localhost:3000/ProfileSetupPage' // Default API URL for iOS
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/ProfileSetupPage' // Override API URL for Android
     }
     try {
       const response = await axios.post(apiUrl, {
         userName: enteredUsername,
         userStory: enteredStory,
-      });
-      setEnteredUsername("");
-      setEnteredStory("");
-
+      })
+      setEnteredUsername('')
+      setEnteredStory('')
     } catch (error) {}
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -53,7 +51,7 @@ const ProfileSetupPage = () => {
       </View>
       <TextInput
         style={styles.inputContainer}
-        placeholder="Enter username"
+        placeholder='Enter username'
         value={enteredUsername}
         onChangeText={usernameHandler}
       />
@@ -61,24 +59,24 @@ const ProfileSetupPage = () => {
         <TextInput
           style={styles.storyInput}
           multiline={true}
-          placeholder="A space to share your story and MS journey. Need some inspiration? View our guide: Sharing your journey"
+          placeholder='A space to share your story and MS journey. Need some inspiration? View our guide: Sharing your journey'
           value={enteredStory}
           onChangeText={storyHandler}
         />
       </ScrollView>
-      <SquareSaveButton title="Save" onPress={saveProfileHandler} />
+      <SquareSaveButton title='Save' onPress={saveProfileHandler} />
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textPrompt: {
     marginTop: 100,
-    color: "black",
+    color: 'black',
     fontSize: 17,
   },
   profilePictureContainer: {
@@ -86,8 +84,8 @@ const styles = StyleSheet.create({
     height: 150,
     borderWidth: 2,
     borderRadius: 75,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
     marginTop: 20,
   },
@@ -95,12 +93,12 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: "deepskyblue",
+    backgroundColor: 'deepskyblue',
   },
   inputContainer: {
     width: 300,
     height: 40,
-    borderColor: "black",
+    borderColor: 'black',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
@@ -111,7 +109,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: "black",
+    borderColor: 'black',
     marginBottom: 20,
   },
   storyInput: {
@@ -119,18 +117,18 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   button: {
-    backgroundColor: "deepskyblue",
+    backgroundColor: 'deepskyblue',
     margin: 15,
     width: 100,
     padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 10,
   },
   buttonText: {
     fontSize: 18,
-    color: "white",
+    color: 'white',
   },
-});
+})
 
-export default ProfileSetupPage;
+export default ProfileSetupPage

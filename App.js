@@ -1,15 +1,13 @@
-import LogIn from "./src/screens/LogIn"
-import HomePage from "./src/screens/HomePage";
-import SignUp from "./src/screens/SignUp";
-import ProfileSetupPage from "./src/screens/ProfileSetupPage";
-import { View } from "react-native"
+import React from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import Tabs from './src/components/Tabs'
 
 const App = () => {
   return (
-    <View>
-      <ProfileSetupPage />
-    </View>
-  );
-};
+    <NavigationContainer>
+      <Tabs />
+    </NavigationContainer>
+  )
+}
 
 export default App
