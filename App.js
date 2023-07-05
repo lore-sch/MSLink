@@ -1,13 +1,13 @@
 import LogIn from "./src/screens/LogIn"
 import HomePage from "./src/screens/HomePage";
 import SignUp from "./src/screens/SignUp";
-import ProfilePage from "./src/screens/ProfilePage"
+import ProfileSetupPage from "./src/screens/ProfileSetupPage";
 import { View } from "react-native"
 
 const App = () => {
   return (
     <View>
-      <HomePage />
+      <ProfileSetupPage />
     </View>
   );
 };

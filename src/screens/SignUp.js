@@ -20,8 +20,8 @@ const SquareButton = ({ title, onPress }) => (
 );
 
 //modal to handle entered email address, password
-//TO DO: Verify passwords match
-//TO DO: Post
+//TO DO: Verify passwords match- error message displayed, but set min/max length?
+
 const SignUp = ({ showModal, setShowModal }) => {
   const [enteredEmailAddress, setEnteredEmailAddress] = useState("");
   const [enteredPassword, setEnteredPassword] = useState("");
@@ -57,6 +57,9 @@ const SignUp = ({ showModal, setShowModal }) => {
         userEmail: enteredEmailAddress,
         userPassword: enteredPasswordConfirmation,
       });
+      //resets text input fields to empty
+      setEnteredEmailAddress("");
+      setEnteredPassword("")
   
       
     } catch (error) {

@@ -14,7 +14,7 @@ import Story from "../components/Story";
 
 //event handlers for editing user name
 //TO DO: Set up image selection and user change image ?? image picker
-const ProfilePage = () => {
+const ProfileEditPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [username, setUsername] = useState("Jane Doe");
 
@@ -30,7 +30,7 @@ const ProfilePage = () => {
   //username should be  called from database
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setUsername("Jane Doe");
+    setUsername("");
   };
 
   //database needs to update
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   storyContainer: {
-    width: 380,
+    width: 370,
     height: 200,
     borderWidth: 1,
     borderRadius: 10,
@@ -157,4 +157,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfilePage;
+export default ProfileEditPage;
