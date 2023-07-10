@@ -1,6 +1,4 @@
-//Live feed accessed via bottom navigation tabs
-
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -17,6 +15,27 @@ import axios from 'axios'
 
 const LiveFeed = () => {
   const [enteredPost, setEnteredPost] = useState('')
+  const [posts, setPosts] = useState([])
+
+  const fetchPosts = async () => {
+    let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/LiveFeed' // Override API URL for Android
+    }
+
+    try {
+      const response = await axios.get(apiUrl)
+      setPosts(response.data)
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+    }
+  }
+
+  // useEffect hook to fetch data within function component
+  useEffect(() => {
+    fetchPosts()
+  }, [])
 
   const postHandler = (enteredPost) => {
     setEnteredPost(enteredPost)
@@ -35,12 +54,21 @@ const LiveFeed = () => {
       })
       // Resets post field to empty
       setEnteredPost('')
+      fetchPosts()
     } catch (error) {
       console.error('Error posting:', error)
     }
   }
-//TO DO: Set up functionality for images and polls or status
-//Refactor of code for post bar to be in separate component
+
+  const renderPostItem = ({ item }) => (
+    <View style={styles.postItemContainer}>
+      <Text style={styles.userName}>{item.user_profile_name}</Text>
+      <Text style={styles.postText}>{item.user_post}</Text>
+      <Text style={styles.postComment}> View comments </Text>
+      {/* Render other post information */}
+    </View>
+  )
+
   return (
     <View style={styles.container}>
       <View style={styles.statusInputContainer}>
@@ -65,6 +93,12 @@ const LiveFeed = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <FlatList
+        style={styles.list}
+        data={posts}
+        renderItem={renderPostItem}
+        keyExtractor={(item) => item.user_post_id.toString()}
+      />
     </View>
   )
 }
@@ -112,6 +146,28 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
+  postItemContainer: {
+    marginTop: 50,
+    marginLeft: 20,
+    marginRight: 20,
+    width: 350,
+    borderBottomWidth: 0.5,
+    borderColor: '#afbebf',
+  },
+  postText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  userName: {
+    fontSize: 14,
+    color: 'deepskyblue',
+    paddingBottom: 5,
+  },
+  postComment: {
+   fontSize: 12,
+   color: 'deepskyblue',
+   marginBottom: 10,
+  }
 })
 
 export default LiveFeed
