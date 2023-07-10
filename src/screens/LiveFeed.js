@@ -1,14 +1,46 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
+//Live feed accessed via bottom navigation tabs
+
+import React, { useState } from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Platform,
+} from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
+import { AntDesign } from '@expo/vector-icons'
+import axios from 'axios'
 
 const LiveFeed = () => {
-  const handleButtonPress = () => {
-    // Handle button press action here
-  };
+  const [enteredPost, setEnteredPost] = useState('')
 
+  const postHandler = (enteredPost) => {
+    setEnteredPost(enteredPost)
+  }
+
+  const postButtonHandler = async () => {
+    let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/LiveFeed' // Override API URL for Android
+    }
+
+    try {
+      const response = await axios.post(apiUrl, {
+        userPost: enteredPost,
+      })
+      // Resets post field to empty
+      setEnteredPost('')
+    } catch (error) {
+      console.error('Error posting:', error)
+    }
+  }
+//TO DO: Set up functionality for images and polls or status
+//Refactor of code for post bar to be in separate component
   return (
     <View style={styles.container}>
       <View style={styles.statusInputContainer}>
@@ -16,6 +48,8 @@ const LiveFeed = () => {
           style={styles.statusInput}
           placeholder="Share with us..."
           multiline={true}
+          onChangeText={postHandler}
+          value={enteredPost}
         />
       </View>
       <View style={styles.optionContainer}>
@@ -26,14 +60,14 @@ const LiveFeed = () => {
         <Text style={styles.optionText}>Poll</Text>
         <AntDesign name="barschart" size={20} color="deepskyblue" />
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleButtonPress}>
+          <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
             <Text style={styles.buttonText}>Post</Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -78,6 +112,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
-});
+})
 
-export default LiveFeed;
+export default LiveFeed
