@@ -1,3 +1,4 @@
+//renders live feed with posts from users sorted by time
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -7,15 +8,19 @@ import {
   TouchableOpacity,
   FlatList,
   Platform,
+  Modal,
 } from 'react-native'
+import { Feather } from '@expo/vector-icons'
 import { Ionicons } from '@expo/vector-icons'
 import { FontAwesome } from '@expo/vector-icons'
 import { AntDesign } from '@expo/vector-icons'
 import axios from 'axios'
+import PostResponse from './PostResponse'
 
 const LiveFeed = () => {
   const [enteredPost, setEnteredPost] = useState('')
   const [posts, setPosts] = useState([])
+  const [selectedPost, setSelectedPost] = useState(null)
 
   const fetchPosts = async () => {
     let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
@@ -60,11 +65,21 @@ const LiveFeed = () => {
     }
   }
 
+  const openPost = (post) => {
+    setSelectedPost(post)
+  }
+
+  const closePost = () => {
+    setSelectedPost(null)
+  }
+
   const renderPostItem = ({ item }) => (
     <View style={styles.postItemContainer}>
       <Text style={styles.userName}>{item.user_profile_name}</Text>
       <Text style={styles.postText}>{item.user_post}</Text>
-      <Text style={styles.postComment}> View comments </Text>
+      <TouchableOpacity onPress={() => openPost(item)}>
+        <Text style={styles.postComment}>View comments</Text>
+      </TouchableOpacity>
       {/* Render other post information */}
     </View>
   )
@@ -99,6 +114,19 @@ const LiveFeed = () => {
         renderItem={renderPostItem}
         keyExtractor={(item) => item.user_post_id.toString()}
       />
+      {/* Display the post details modal */}
+      {selectedPost && (
+        <Modal
+          visible={true}
+          onRequestClose={closePost}
+          fetchComments={fetchPosts}
+        >
+          <PostResponse post={selectedPost} />
+          <TouchableOpacity style={styles.closeButton} onPress={closePost}>
+            <Feather name="x" size={14} color="white" />
+          </TouchableOpacity>
+        </Modal>
+      )}
     </View>
   )
 }
@@ -152,7 +180,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
     width: 350,
     borderBottomWidth: 0.5,
-    borderColor: '#afbebf',
+    borderColor: '#aebdbf',
   },
   postText: {
     fontSize: 16,
@@ -164,10 +192,22 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   postComment: {
-   fontSize: 12,
-   color: 'deepskyblue',
-   marginBottom: 10,
-  }
+    fontSize: 12,
+    color: 'deepskyblue',
+    marginBottom: 10,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+    marginLeft: 10,
+    backgroundColor: 'deepskyblue',
+    borderRadius: 20,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 })
 
 export default LiveFeed
