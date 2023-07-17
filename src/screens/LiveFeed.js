@@ -52,7 +52,8 @@ const LiveFeed = () => {
         },
       })
 
-      setComments(response.data)
+      const commentsData = response.data || [] // Handle undefined or null comments
+      setComments(commentsData)
     } catch (error) {
       console.error('Error fetching comments:', error)
     }
@@ -109,7 +110,7 @@ const LiveFeed = () => {
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder='Share with us...'
+          placeholder="Share with us..."
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
@@ -117,11 +118,11 @@ const LiveFeed = () => {
       </View>
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
+        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
         <Text style={styles.optionText}>Photo</Text>
-        <FontAwesome name='photo' size={20} color='deepskyblue' />
+        <FontAwesome name="photo" size={20} color="deepskyblue" />
         <Text style={styles.optionText}>Poll</Text>
-        <AntDesign name='barschart' size={20} color='deepskyblue' />
+        <AntDesign name="barschart" size={20} color="deepskyblue" />
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
             <Text style={styles.buttonText}>Post</Text>
@@ -140,9 +141,10 @@ const LiveFeed = () => {
                 post={selectedPost}
                 comments={comments}
                 fetchComments={fetchComments}
+                user_post_id={selectedPost.user_post_id}
               />
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-                <Feather name='x' size={14} color='white' />
+                <Feather name="x" size={14} color="white" />
               </TouchableOpacity>
             </Modal>
           )

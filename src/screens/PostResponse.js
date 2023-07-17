@@ -12,7 +12,7 @@ import {
 } from 'react-native'
 import axios from 'axios'
 
-const PostResponse = ({ post, comments, fetchComments }) => {
+const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
 
@@ -44,21 +44,28 @@ const PostResponse = ({ post, comments, fetchComments }) => {
       }
 
       const response = await axios.post(apiUrl, {
+        user_post_id: post.user_post_id,
         userComment: comment,
       })
 
       setComment('')
-      fetchComments() // Fetch updated comments after posting a new comment
+      fetchComments(user_post_id)
+      setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
     } catch (error) {
       console.error('Error posting:', error)
     }
   }
 
-  const renderComment = ({ item }) => (
-    <View>
-      <Text style={styles.commentText}>{item.post_comment}</Text>
-    </View>
-  )
+  const renderComment = ({ item }) => {
+    if (!item || !item.post_comment_id) {
+      return null // Skip rendering if the comment or comment ID is undefined
+    }
+    return (
+      <View>
+        <Text style={styles.commentText}>{item.post_comment}</Text>
+      </View>
+    )
+  }
 
   useEffect(() => {
     fetchPostComments() // Fetch comments when the component mounts
