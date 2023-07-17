@@ -1,4 +1,4 @@
-//renders live feed with posts from users sorted by time
+// LiveFeed- shows the posts from users
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -21,6 +21,7 @@ const LiveFeed = () => {
   const [enteredPost, setEnteredPost] = useState('')
   const [posts, setPosts] = useState([])
   const [selectedPost, setSelectedPost] = useState(null)
+  const [comments, setComments] = useState([])
 
   const fetchPosts = async () => {
     let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
@@ -37,7 +38,26 @@ const LiveFeed = () => {
     }
   }
 
-  // useEffect hook to fetch data within function component
+  const fetchComments = async (userPostId) => {
+    let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/PostResponse' // Override API URL for Android
+    }
+
+    try {
+      const response = await axios.get(apiUrl, {
+        params: {
+          user_post_id: userPostId,
+        },
+      })
+
+      setComments(response.data)
+    } catch (error) {
+      console.error('Error fetching comments:', error)
+    }
+  }
+
   useEffect(() => {
     fetchPosts()
   }, [])
@@ -57,7 +77,6 @@ const LiveFeed = () => {
       const response = await axios.post(apiUrl, {
         userPost: enteredPost,
       })
-      // Resets post field to empty
       setEnteredPost('')
       fetchPosts()
     } catch (error) {
@@ -67,10 +86,12 @@ const LiveFeed = () => {
 
   const openPost = (post) => {
     setSelectedPost(post)
+    fetchComments(post.user_post_id)
   }
 
   const closePost = () => {
     setSelectedPost(null)
+    setComments([])
   }
 
   const renderPostItem = ({ item }) => (
@@ -80,7 +101,6 @@ const LiveFeed = () => {
       <TouchableOpacity onPress={() => openPost(item)}>
         <Text style={styles.postComment}>View comments</Text>
       </TouchableOpacity>
-      {/* Render other post information */}
     </View>
   )
 
@@ -89,7 +109,7 @@ const LiveFeed = () => {
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder="Share with us..."
+          placeholder='Share with us...'
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
@@ -97,11 +117,11 @@ const LiveFeed = () => {
       </View>
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
+        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
         <Text style={styles.optionText}>Photo</Text>
-        <FontAwesome name="photo" size={20} color="deepskyblue" />
+        <FontAwesome name='photo' size={20} color='deepskyblue' />
         <Text style={styles.optionText}>Poll</Text>
-        <AntDesign name="barschart" size={20} color="deepskyblue" />
+        <AntDesign name='barschart' size={20} color='deepskyblue' />
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
             <Text style={styles.buttonText}>Post</Text>
@@ -113,20 +133,21 @@ const LiveFeed = () => {
         data={posts}
         renderItem={renderPostItem}
         keyExtractor={(item) => item.user_post_id.toString()}
+        ListFooterComponent={
+          selectedPost && (
+            <Modal visible={true} onRequestClose={closePost}>
+              <PostResponse
+                post={selectedPost}
+                comments={comments}
+                fetchComments={fetchComments}
+              />
+              <TouchableOpacity style={styles.closeButton} onPress={closePost}>
+                <Feather name='x' size={14} color='white' />
+              </TouchableOpacity>
+            </Modal>
+          )
+        }
       />
-      {/* Display the post details modal */}
-      {selectedPost && (
-        <Modal
-          visible={true}
-          onRequestClose={closePost}
-          fetchComments={fetchPosts}
-        >
-          <PostResponse post={selectedPost} />
-          <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-            <Feather name="x" size={14} color="white" />
-          </TouchableOpacity>
-        </Modal>
-      )}
     </View>
   )
 }

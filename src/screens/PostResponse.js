@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+//post comments on user posts and status
+
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -10,11 +12,11 @@ import {
 } from 'react-native'
 import axios from 'axios'
 
-const PostResponse = ({ post }) => {
+const PostResponse = ({ post, comments, fetchComments }) => {
   const [comment, setComment] = useState('')
-  const [comments, setComments] = useState([])
+  const [commentList, setCommentList] = useState([])
 
-  const fetchComments = async () => {
+  const fetchPostComments = useCallback(async () => {
     try {
       let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
 
@@ -27,12 +29,11 @@ const PostResponse = ({ post }) => {
           user_post_id: post.user_post_id,
         },
       })
-
-      setComments(response.data)
+      setCommentList(response.data)
     } catch (error) {
       console.error('Error fetching comments:', error)
     }
-  }
+  }, [post])
 
   const addComment = async () => {
     try {
@@ -60,8 +61,8 @@ const PostResponse = ({ post }) => {
   )
 
   useEffect(() => {
-    fetchComments() // Fetch comments when the component mounts
-  }, [post])
+    fetchPostComments() // Fetch comments when the component mounts
+  }, [fetchPostComments])
 
   return (
     <View style={styles.container}>
@@ -78,7 +79,7 @@ const PostResponse = ({ post }) => {
 
       {/* Add comment input */}
       <TextInput
-        placeholder='Write comment...'
+        placeholder="Write comment..."
         onChangeText={setComment}
         value={comment}
         style={styles.textInput}
