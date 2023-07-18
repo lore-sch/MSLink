@@ -45,6 +45,7 @@ const LiveFeed = () => {
       apiUrl = 'http://10.0.2.2:3000/PostResponse' // Override API URL for Android
     }
 
+    //user_post_id to ensure comments related to clicked on post appear
     try {
       const response = await axios.get(apiUrl, {
         params: {

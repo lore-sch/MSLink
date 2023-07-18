@@ -35,6 +35,7 @@ const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
     }
   }, [post])
 
+  //to post comments to existing comments on status
   const addComment = async () => {
     try {
       let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
@@ -58,10 +59,11 @@ const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
 
   const renderComment = ({ item }) => {
     if (!item || !item.post_comment_id) {
-      return null // Skip rendering if the comment or comment ID is undefined
+      return null // skips rendering if the comment/ the post_comment_id undefined (avoids axios error)
     }
     return (
-      <View>
+      <View style={styles.commentsContainer}>
+        <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
         <Text style={styles.commentText}>{item.post_comment}</Text>
       </View>
     )
@@ -77,52 +79,68 @@ const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
         <Text style={styles.postUserName}>{post.user_profile_name}</Text>
         <Text style={styles.postText}>{post.user_post}</Text>
       </View>
-      {/* Render the comments */}
-      <FlatList
-        data={comments}
-        renderItem={renderComment}
-        keyExtractor={(item) => item.post_comment_id.toString()}
-      />
+
+      <View style={styles.commentsContainer}>
+        <FlatList
+          data={comments}
+          renderItem={renderComment}
+          keyExtractor={(item) => item.post_comment_id.toString()}
+        />
+      </View>
 
       {/* Add comment input */}
-      <TextInput
-        placeholder="Write comment..."
-        onChangeText={setComment}
-        value={comment}
-        style={styles.textInput}
-        multiline={true}
-      />
-      <View style={styles.buttonContainer}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Write comment..."
+          onChangeText={setComment}
+          value={comment}
+          style={styles.textInput}
+          multiline={true}
+        />
         <TouchableOpacity style={styles.button} onPress={addComment}>
           <Text style={styles.buttonText}>Post</Text>
         </TouchableOpacity>
       </View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 100,
   },
   postContainer: {
-    marginTop: 70,
+    marginTop: 50,
     marginLeft: 20,
     marginRight: 20,
     width: 350,
+    borderBottomWidth: 0.5,
+    borderColor: '#aebdbf',
+  },
+  commentsContainer: {
+    flex: 1,
+    marginTop: 20,
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+    marginLeft: 20,
+    marginRight: 20
   },
   textInput: {
-    marginTop: 30,
-    marginLeft: 20,
-    marginRight: 20,
-    width: 350,
-    fontSize: 16,
+    flex: 1,
+    height: 40,
     borderWidth: 1,
     borderColor: '#aebdbf',
     borderRadius: 5,
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    fontSize: 16,
   },
   postUserName: {
     fontSize: 16,
@@ -131,13 +149,10 @@ const styles = StyleSheet.create({
   postText: {
     fontSize: 16,
     marginTop: 10,
-  },
-  buttonContainer: {
-    marginTop: 10,
-    marginLeft: 275,
-    paddingHorizontal: 10,
+    marginBottom: 10
   },
   button: {
+    marginLeft: 10,
     backgroundColor: 'deepskyblue',
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -149,7 +164,14 @@ const styles = StyleSheet.create({
   },
   commentText: {
     fontSize: 16,
+    
   },
-})
+  profileNameText: {
+    fontSize: 16,
+    color: "deepskyblue",
+    marginLeft: 20,
+    marginRight: 20,
+  }
+});
 
-export default PostResponse
+export default PostResponse;
