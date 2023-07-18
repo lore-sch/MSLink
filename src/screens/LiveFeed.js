@@ -16,12 +16,14 @@ import { FontAwesome } from '@expo/vector-icons'
 import { AntDesign } from '@expo/vector-icons'
 import axios from 'axios'
 import PostResponse from './PostResponse'
+import PostReaction from './PostReaction'
 
 const LiveFeed = () => {
   const [enteredPost, setEnteredPost] = useState('')
   const [posts, setPosts] = useState([])
   const [selectedPost, setSelectedPost] = useState(null)
   const [comments, setComments] = useState([])
+  const [postReactions, setPostReactions] = useState({}) // State to store reactions for each post
 
   const fetchPosts = async () => {
     let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
@@ -96,13 +98,48 @@ const LiveFeed = () => {
     setComments([])
   }
 
+  const handlePostReaction = async (userPostId, emojiIdentifier) => {
+    try {
+      // Determine the API URL based on the platform (Android or iOS)
+      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
+      if (Platform.OS === 'android') {
+        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
+      }
+
+      // Make an HTTP POST request to the server to submit the reaction
+      await axios.post(`${apiUrl}/PostReaction`, {
+        user_post_id: userPostId,
+        reactionType: emojiIdentifier,
+      })
+
+      // Update the reaction state for the current post
+      updatePostReaction(userPostId, emojiIdentifier)
+    } catch (error) {
+      console.error('Error submitting reaction:', error)
+    }
+  }
+
+  const updatePostReaction = (userPostId, reactionType) => {
+    setPostReactions((prevReactions) => ({
+      ...prevReactions,
+      [userPostId]: reactionType,
+    }))
+  }
+
   const renderPostItem = ({ item }) => (
     <View style={styles.postItemContainer}>
       <Text style={styles.userName}>{item.user_profile_name}</Text>
       <Text style={styles.postText}>{item.user_post}</Text>
-      <TouchableOpacity onPress={() => openPost(item)}>
-        <Text style={styles.postComment}>View comments</Text>
-      </TouchableOpacity>
+      <View style={styles.reactionContainer}>
+        <TouchableOpacity onPress={() => openPost(item)}>
+          <Text style={styles.postComment}>View comments</Text>
+        </TouchableOpacity>
+        <PostReaction
+          onReactionSelect={handlePostReaction}
+          user_post_id={item.user_post_id}
+          selectedReaction={postReactions[item.user_post_id] || null}
+        />
+      </View>
     </View>
   )
 
@@ -111,7 +148,7 @@ const LiveFeed = () => {
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder="Share with us..."
+          placeholder='Share with us...'
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
@@ -119,11 +156,11 @@ const LiveFeed = () => {
       </View>
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
+        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
         <Text style={styles.optionText}>Photo</Text>
-        <FontAwesome name="photo" size={20} color="deepskyblue" />
+        <FontAwesome name='photo' size={20} color='deepskyblue' />
         <Text style={styles.optionText}>Poll</Text>
-        <AntDesign name="barschart" size={20} color="deepskyblue" />
+        <AntDesign name='barschart' size={20} color='deepskyblue' />
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
             <Text style={styles.buttonText}>Post</Text>
@@ -145,16 +182,24 @@ const LiveFeed = () => {
                 user_post_id={selectedPost.user_post_id}
               />
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-                <Feather name="x" size={14} color="white" />
+                <Feather name='x' size={14} color='white' />
               </TouchableOpacity>
             </Modal>
           )
         }
       />
+      {selectedPost && (
+        <View>
+          <PostReaction
+            onReactionSelect={handlePostReaction}
+            user_post_id={selectedPost.user_post_id}
+            selectedReaction={postReactions[selectedPost.user_post_id] || null}
+          />
+        </View>
+      )}
     </View>
   )
 }
-
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
@@ -206,19 +251,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderColor: '#aebdbf',
   },
+  reactionContainer: {
+    flexDirection: 'row',
+  },
   postText: {
     fontSize: 16,
     marginBottom: 10,
   },
   userName: {
-    fontSize: 14,
+    fontSize: 16,
     color: 'deepskyblue',
     paddingBottom: 5,
   },
   postComment: {
-    fontSize: 12,
+    fontSize: 16,
     color: 'deepskyblue',
     marginBottom: 10,
+    marginRight: 0,
   },
   closeButton: {
     position: 'absolute',
