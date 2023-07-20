@@ -17,6 +17,7 @@ import { AntDesign } from '@expo/vector-icons'
 import axios from 'axios'
 import PostResponse from './PostResponse'
 import PostReaction from './PostReaction'
+import PostReactionCount from './PostReactionCount'
 
 const LiveFeed = () => {
   const [enteredPost, setEnteredPost] = useState('')
@@ -130,6 +131,7 @@ const LiveFeed = () => {
     <View style={styles.postItemContainer}>
       <Text style={styles.userName}>{item.user_profile_name}</Text>
       <Text style={styles.postText}>{item.user_post}</Text>
+      <PostReactionCount user_post_id={item.user_post_id} />
       <View style={styles.reactionContainer}>
         <TouchableOpacity onPress={() => openPost(item)}>
           <Text style={styles.postComment}>View comments</Text>
@@ -201,7 +203,7 @@ const LiveFeed = () => {
   )
 }
 const styles = StyleSheet.create({
-  container: {
+container: {
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -235,7 +237,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: 'deepskyblue',
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 5,
   },
