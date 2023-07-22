@@ -8,7 +8,7 @@ import {
   TextInput,
   SafeAreaView,
   Modal,
-  Platform
+  Platform,
 } from 'react-native'
 import { AuthContext } from '../components/AuthContext'
 
@@ -28,7 +28,6 @@ const LogIn = ({ showModal, setShowModal }) => {
   const [enteredPassword, setEnteredPassword] = useState('')
   const { authenticated, setAuthenticated } = useContext(AuthContext)
 
-
   const emailHandler = (enteredEmailAddress) => {
     setEnteredEmailAddress(enteredEmailAddress)
   }
@@ -44,7 +43,7 @@ const LogIn = ({ showModal, setShowModal }) => {
       if (Platform.OS === 'android') {
         apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
       }
-      // Make a network request to your backend API
+      // api call for login
       const response = await fetch(`${apiUrl}/LogIn`, {
         method: 'POST',
         headers: {
@@ -54,32 +53,32 @@ const LogIn = ({ showModal, setShowModal }) => {
           userEmail: enteredEmailAddress,
           userPassword: enteredPassword,
         }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       // Check if the login was successful
       if (response.ok) {
-        console.log('Login successful');
-        setAuthenticated(true); // Set the authenticated state to true in AuthContext
-        setShowModal(false); // Close the login modal
+        console.log('Login successful')
+        setAuthenticated(true) // Set the authenticated state to true in AuthContext
+        setShowModal(false) // Close the login modal
       } else {
-        console.log('Login failed');
-        // Display an error message to the user
+        console.log('Login failed')
+        //set up error message for user
       }
     } catch (error) {
-      console.error('Error logging in', error);
-      // Display an error message to the user
+      console.error('Error logging in', error)
+      // display error message
     }
-  };
+  }
   return (
-    <Modal visible={showModal} animationType="slide">
+    <Modal visible={showModal} animationType='slide'>
       <SafeAreaView>
         <View style={styles.inputContainer}>
           <Text style={styles.inputPrompt}> Email address: </Text>
           <TextInput
             style={styles.textInput}
-            placeholder="example@example.co.uk"
+            placeholder='example@example.co.uk'
             onChangeText={emailHandler}
           />
           <Text style={styles.inputPrompt}> Password:</Text>
@@ -89,8 +88,8 @@ const LogIn = ({ showModal, setShowModal }) => {
             secureTextEntry={true}
           />
           <View style={styles.buttonContainer}>
-            <SquareButton title="Log in" onPress={logInHandler} />
-            <SquareButton title="Cancel" onPress={() => setShowModal(false)} />
+            <SquareButton title='Log in' onPress={logInHandler} />
+            <SquareButton title='Cancel' onPress={() => setShowModal(false)} />
           </View>
         </View>
       </SafeAreaView>
