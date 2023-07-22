@@ -42,18 +42,22 @@ const PostReaction = ({ onReactionSelect, user_post_id, selectedReaction }) => {
 
   return (
     <View style={styles.emojiContainer}>
-      {availableEmojis.map((emojiObj) => (
-        <TouchableOpacity
-          key={emojiObj.identifier}
-          onPress={() => handleEmojiClick(emojiObj.identifier)}
-          style={[
-            styles.emojiButton,
-            selectedEmoji === emojiObj.identifier && styles.selectedEmoji,
-          ]}
-        >
-          <Text>{emojiObj.emoji}</Text>
-        </TouchableOpacity>
-      ))}
+      {availableEmojis.map(
+        (
+          emojiObj //loops through available emojis
+        ) => (
+          <TouchableOpacity //emoji buttons
+            key={emojiObj.identifier}
+            onPress={() => handleEmojiClick(emojiObj.identifier)} //function called when emoji clicked, identfier is an argument passed as a function to determine emoji
+            style={[
+              styles.emojiButton,
+              selectedEmoji === emojiObj.identifier && styles.selectedEmoji,
+            ]}
+          >
+            <Text>{emojiObj.emoji}</Text>
+          </TouchableOpacity>
+        )
+      )}
     </View>
   )
 }

@@ -26,6 +26,7 @@ const LiveFeed = () => {
   const [comments, setComments] = useState([])
   const [postReactions, setPostReactions] = useState({}) // State to store reactions for each post
 
+  //TO DOL: Set up individual component for android/ios route
   const fetchPosts = async () => {
     let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
 
@@ -65,7 +66,7 @@ const LiveFeed = () => {
 
   useEffect(() => {
     fetchPosts()
-  }, [])
+  }, [postReactions])
 
   const postHandler = (enteredPost) => {
     setEnteredPost(enteredPost)
@@ -115,6 +116,7 @@ const LiveFeed = () => {
 
       // Update the reaction state for the current post
       updatePostReaction(userPostId, emojiIdentifier)
+      console.log('Updated postReactions:', postReactions)
     } catch (error) {
       console.error('Error submitting reaction:', error)
     }
@@ -127,16 +129,23 @@ const LiveFeed = () => {
     }))
   }
 
+  //redners user profile name and their 'status' or post- also shows reactions count but not working currently- all 0
   const renderPostItem = ({ item }) => (
+    
     <View style={styles.postItemContainer}>
       <Text style={styles.userName}>{item.user_profile_name}</Text>
       <Text style={styles.postText}>{item.user_post}</Text>
-      <PostReactionCount user_post_id={item.user_post_id} />
+      <PostReactionCount
+        user_post_id={item.user_post_id}
+        counts={postReactions[item.user_post_id] || {}}
+        onReactionSelect={handlePostReaction}
+        selectedReaction={postReactions[item.user_post_id] || null}
+      />
       <View style={styles.reactionContainer}>
         <TouchableOpacity onPress={() => openPost(item)}>
           <Text style={styles.postComment}>View comments</Text>
         </TouchableOpacity>
-        <PostReaction
+        <PostReaction //handles when reaction on post
           onReactionSelect={handlePostReaction}
           user_post_id={item.user_post_id}
           selectedReaction={postReactions[item.user_post_id] || null}
@@ -144,13 +153,12 @@ const LiveFeed = () => {
       </View>
     </View>
   )
-
   return (
     <View style={styles.container}>
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder='Share with us...'
+          placeholder="Share with us..."
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
@@ -158,11 +166,11 @@ const LiveFeed = () => {
       </View>
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
+        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
         <Text style={styles.optionText}>Photo</Text>
-        <FontAwesome name='photo' size={20} color='deepskyblue' />
+        <FontAwesome name="photo" size={20} color="deepskyblue" />
         <Text style={styles.optionText}>Poll</Text>
-        <AntDesign name='barschart' size={20} color='deepskyblue' />
+        <AntDesign name="barschart" size={20} color="deepskyblue" />
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
             <Text style={styles.buttonText}>Post</Text>
@@ -184,7 +192,7 @@ const LiveFeed = () => {
                 user_post_id={selectedPost.user_post_id}
               />
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-                <Feather name='x' size={14} color='white' />
+                <Feather name="x" size={14} color="white" />
               </TouchableOpacity>
             </Modal>
           )
@@ -203,7 +211,7 @@ const LiveFeed = () => {
   )
 }
 const styles = StyleSheet.create({
-container: {
+  container: {
     alignItems: 'center',
     justifyContent: 'center',
   },

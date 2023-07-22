@@ -1,5 +1,5 @@
 //Login in modal accessible from home page
-import { useState } from "react";
+import { useState, useContext } from 'react'
 import {
   View,
   Text,
@@ -8,34 +8,69 @@ import {
   TextInput,
   SafeAreaView,
   Modal,
-} from "react-native";
+  Platform
+} from 'react-native'
+import { AuthContext } from '../components/AuthContext'
 
 //button styling and set up
 const SquareButton = ({ title, onPress }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
     <Text style={styles.buttonText}>{title}</Text>
   </TouchableOpacity>
-);
+)
 
 //modal to handle entered email address and password
 //TO DO: Login authentication
 //TO DO: Post
 
 const LogIn = ({ showModal, setShowModal }) => {
-  const [enteredEmailAddress, setEnteredEmailAddress] = useState("");
-  const [enteredPassword, setEnteredPassword] = useState("");
+  const [enteredEmailAddress, setEnteredEmailAddress] = useState('')
+  const [enteredPassword, setEnteredPassword] = useState('')
+  const { authenticated, setAuthenticated } = useContext(AuthContext)
+
 
   const emailHandler = (enteredEmailAddress) => {
-    setEnteredEmailAddress(enteredEmailAddress);
-  };
+    setEnteredEmailAddress(enteredEmailAddress)
+  }
 
   const passwordHandler = (enteredPassword) => {
-    setEnteredPassword(enteredPassword);
-  };
+    setEnteredPassword(enteredPassword)
+  }
 
-  const logInHandler = () => {
-    console.log(enteredEmailAddress);
-    console.log(enteredPassword);
+  const logInHandler = async () => {
+    try {
+      // Determine the API URL based on the platform (Android or iOS)
+      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
+      if (Platform.OS === 'android') {
+        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
+      }
+      // Make a network request to your backend API
+      const response = await fetch(`${apiUrl}/LogIn`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userEmail: enteredEmailAddress,
+          userPassword: enteredPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      // Check if the login was successful
+      if (response.ok) {
+        console.log('Login successful');
+        setAuthenticated(true); // Set the authenticated state to true in AuthContext
+        setShowModal(false); // Close the login modal
+      } else {
+        console.log('Login failed');
+        // Display an error message to the user
+      }
+    } catch (error) {
+      console.error('Error logging in', error);
+      // Display an error message to the user
+    }
   };
   return (
     <Modal visible={showModal} animationType="slide">
@@ -60,14 +95,14 @@ const LogIn = ({ showModal, setShowModal }) => {
         </View>
       </SafeAreaView>
     </Modal>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   inputContainer: {
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 16,
     marginTop: 250,
   },
@@ -76,30 +111,30 @@ const styles = StyleSheet.create({
   },
   textInput: {
     borderWidth: 1,
-    borderColor: "black",
+    borderColor: 'black',
     borderRadius: 6,
-    width: "80%",
+    width: '80%',
     padding: 8,
     margin: 15,
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
   },
   button: {
-    backgroundColor: "deepskyblue",
+    backgroundColor: 'deepskyblue',
     margin: 15,
     width: 100,
     padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 10,
   },
   buttonText: {
     fontSize: 18,
-    color: "white",
+    color: 'white',
   },
-});
-export default LogIn;
+})
+export default LogIn
