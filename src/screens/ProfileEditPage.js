@@ -68,6 +68,7 @@ const ProfileEditPage = () => {
       {isEditing ? (
         <TextInput
           style={styles.editUsername}
+          placeholder='User name'
           value={username}
           onChangeText={handleChangeUsername}
         />

@@ -48,11 +48,11 @@ const styles = {
     marginHorizontal: 15,
   },
   storyContainer: {
-    width: 380,
+    marginHorizontal: 10,
     height: 200,
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: 'white',
+    borderColor: 'grey',
     marginVertical: 20,
   },
   storyContent: {
@@ -60,9 +60,10 @@ const styles = {
     paddingBottom: 10,
   },
   promptContainer: {
-    width: 280,
-    marginHorizontal: 50,
+    width: 350,
+    marginHorizontal: 9,
     paddingBottom: 30,
+    textAlign: 'center',
   },
   promptText: {
     fontSize: 17,
