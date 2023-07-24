@@ -20,9 +20,6 @@ const SquareButton = ({ title, onPress }) => (
 )
 
 //modal to handle entered email address and password
-//TO DO: Login authentication
-//TO DO: Post
-
 const LogIn = ({ showModal, setShowModal }) => {
   const [enteredEmailAddress, setEnteredEmailAddress] = useState('')
   const [enteredPassword, setEnteredPassword] = useState('')

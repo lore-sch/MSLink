@@ -8,28 +8,46 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Platform,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
-import Story from '../components/Story'
+import Story from './Story'
+import axios from 'axios'
 
 //event handlers for editing user name
 //TO DO: Set up image selection and user change image ?? image picker
 const ProfileEditPage = () => {
   const [isEditing, setIsEditing] = useState(false)
-  const [username, setUsername] = useState('Jane Doe')
+  const [username, setUsername] = useState('')
+  const [userStory, setUserStory] = useState('')
 
   const handleEditProfile = () => {
     setIsEditing(true)
   }
 
-  const handleSaveProfile = () => {
-    setIsEditing(false)
+  const handleSaveProfile = async () => {
+    let apiUrl = 'http://localhost:3000/ProfileEditPage' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/ProfileEditPage' // Override API URL for Android
+    }
+    try {
+      const response = await axios.post(apiUrl, {
+        userName: username,
+        userStory: userStory,
+      })
+
+      console.log('Profile updated:', response.data)
+      setIsEditing(false)
+    } catch (error) {
+      console.error('Error updating profile:', error)
+    }
   }
 
   //username should be  called from database
   const handleCancelEdit = () => {
     setIsEditing(false)
-    setUsername('Jane Doe')
+    setUsername('')
   }
 
   //database needs to update
@@ -60,7 +78,11 @@ const ProfileEditPage = () => {
         style={styles.storyContainer}
         contentContainerStyle={styles.storyContent}
       >
-        <Story isEditing={isEditing} />
+        <Story
+          isEditing={isEditing}
+          userStory={userStory}
+          setUserStory={setUserStory}
+        />
       </ScrollView>
 
       {isEditing ? (
