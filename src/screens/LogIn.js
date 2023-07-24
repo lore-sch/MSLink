@@ -11,6 +11,21 @@ import {
   Platform,
 } from 'react-native'
 import { AuthContext } from '../components/AuthContext'
+import * as SecureStore from 'expo-secure-store'
+
+//retrieves the JWT token from secure store for api reqs
+const getAuthToken = async () => {
+  try {
+    const tokenString = await SecureStore.getItemAsync('jwtToken')
+    const refreshTokenString = await SecureStore.getItemAsync('refreshToken')
+    const token = JSON.parse(tokenString)
+    const refreshToken = JSON.parse(refreshTokenString)
+    return { token, refreshToken }
+  } catch (error) {
+    console.error('Error getting auth token', error)
+    return null
+  }
+}
 
 //button styling and set up
 const SquareButton = ({ title, onPress }) => (
@@ -52,22 +67,24 @@ const LogIn = ({ showModal, setShowModal }) => {
         }),
       })
 
-      const data = await response.json()
-
       // Check if the login was successful
       if (response.ok) {
-        console.log('Login successful')
+        const data = await response.json()
+        const { token, refreshToken } = data
+        await SecureStore.setItemAsync('jwtToken', token)
+        await SecureStore.setItemAsync('refreshToken', refreshToken)
         setAuthenticated(true) // Set the authenticated state to true in AuthContext
         setShowModal(false) // Close the login modal
       } else {
-        console.log('Login failed')
-        //set up error message for user
+        console.log('Login failed', response.status)
+        // TO DO: DISPLAY MESSAGE ON SCREEN
       }
     } catch (error) {
       console.error('Error logging in', error)
       // display error message
     }
   }
+
   return (
     <Modal visible={showModal} animationType='slide'>
       <SafeAreaView>
@@ -85,7 +102,7 @@ const LogIn = ({ showModal, setShowModal }) => {
             secureTextEntry={true}
           />
           <View style={styles.buttonContainer}>
-            <SquareButton title='Log in' onPress={logInHandler} />
+            <SquareButton title='Log in' onPress={() => logInHandler()} />
             <SquareButton title='Cancel' onPress={() => setShowModal(false)} />
           </View>
         </View>
