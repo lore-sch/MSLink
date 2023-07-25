@@ -82,7 +82,6 @@ const LogIn = ({ showModal, setShowModal }) => {
         setAuthenticated(true) // Set the authenticated state to true in AuthContext
         setUserId(user_id)
         setShowModal(false) // Close the login modal
-        console.log('User ID:', user_id)
       } else {
         console.log('Login failed', response.status)
         // TO DO: DISPLAY MESSAGE ON SCREEN
