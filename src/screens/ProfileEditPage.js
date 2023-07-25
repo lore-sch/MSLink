@@ -1,5 +1,5 @@
 //User profile page
-import React, { useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -13,13 +13,42 @@ import {
 import { Feather } from '@expo/vector-icons'
 import Story from './Story'
 import axios from 'axios'
+import { AuthContext } from '../components/AuthContext'
 
 //event handlers for editing user name
 //TO DO: Set up image selection and user change image ?? image picker
 const ProfileEditPage = () => {
+  const { userId } = useContext(AuthContext)
   const [isEditing, setIsEditing] = useState(false)
   const [username, setUsername] = useState('')
   const [userStory, setUserStory] = useState('')
+
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      let apiUrl = 'http://localhost:3000/ProfileEditPage' // Default API URL for iOS
+      if (Platform.OS === 'android') {
+        apiUrl = 'http://10.0.2.2:3000/ProfileEditPage' // Override API URL for Android
+      }
+
+      try {
+        const response = await axios.get(apiUrl, {
+          params: {
+            user_id: userId,
+          },
+        })
+
+        const userProfile = response.data
+        setUsername(userProfile.user_profile_name)
+        setUserStory(userProfile.user_story)
+
+      } catch (error) {
+        console.error('Error getting profile', error)
+
+      }
+    }
+    fetchUserProfile()
+  }, [userId])
 
   const handleEditProfile = () => {
     setIsEditing(true)
@@ -92,13 +121,13 @@ const ProfileEditPage = () => {
             style={styles.editButton}
             onPress={handleSaveProfile}
           >
-            <Feather name="check" size={20} color="white" />
+            <Feather name='check' size={20} color='white' />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.editButton}
             onPress={handleCancelEdit}
           >
-            <Feather name="x" size={20} color="white" />
+            <Feather name='x' size={20} color='white' />
           </TouchableOpacity>
         </View>
       ) : (
@@ -107,7 +136,7 @@ const ProfileEditPage = () => {
             style={styles.editButton}
             onPress={handleEditProfile}
           >
-            <Feather name="edit" size={20} color="white" />
+            <Feather name='edit' size={20} color='white' />
           </TouchableOpacity>
         </View>
       )}

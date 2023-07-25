@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React from 'react'
+import React, { useContext } from 'react'
 import ProfileEditPage from '../screens/ProfileEditPage'
 import LiveFeed from '../screens/LiveFeed'
 import Discussion from '../screens/Discussion'
@@ -7,10 +7,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { FontAwesome } from '@expo/vector-icons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Entypo } from '@expo/vector-icons'
+import { AuthContext } from './AuthContext'
 
 const Tab = createBottomTabNavigator()
 
 const Tabs = () => {
+  const { userId } = useContext(AuthContext)
   return (
     <Tab.Navigator
       screenOptions={{
@@ -19,18 +21,19 @@ const Tabs = () => {
       }}
     >
       <Tab.Screen
-        name={'Profile'}
-        component={ProfileEditPage}
+        name='Profile'
         options={{
           tabBarIcon: ({ focused }) => (
             <FontAwesome
-              name={'user-circle'}
+              name='user-circle'
               size={25}
               color={focused ? '#17b4ac' : 'black'}
             />
           ),
         }}
-      />
+      >
+        {() => <ProfileEditPage />}
+      </Tab.Screen>
       <Tab.Screen
         name={'Discussion'}
         component={Discussion}

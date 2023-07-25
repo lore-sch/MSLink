@@ -10,7 +10,7 @@ import {
   Modal,
   Platform,
 } from 'react-native'
-import { AuthContext } from '../components/AuthContext'
+import { AuthContext, AuthProvider } from '../components/AuthContext'
 import * as SecureStore from 'expo-secure-store'
 
 //retrieves the JWT token from secure store for api reqs
@@ -38,7 +38,7 @@ const SquareButton = ({ title, onPress }) => (
 const LogIn = ({ showModal, setShowModal }) => {
   const [enteredEmailAddress, setEnteredEmailAddress] = useState('')
   const [enteredPassword, setEnteredPassword] = useState('')
-  const { authenticated, setAuthenticated } = useContext(AuthContext)
+  const { authenticated, setAuthenticated, setUserId } = useContext(AuthContext)
 
   const emailHandler = (enteredEmailAddress) => {
     setEnteredEmailAddress(enteredEmailAddress)
@@ -70,11 +70,19 @@ const LogIn = ({ showModal, setShowModal }) => {
       // Check if the login was successful
       if (response.ok) {
         const data = await response.json()
-        const { token, refreshToken } = data
-        await SecureStore.setItemAsync('jwtToken', token)
-        await SecureStore.setItemAsync('refreshToken', refreshToken)
+        const { token, refreshToken, user_id } = data.data
+
+        const serialisedData = JSON.stringify({
+          token,
+          refreshToken,
+          user_id,
+        })
+        await SecureStore.setItemAsync('userData', serialisedData)
+
         setAuthenticated(true) // Set the authenticated state to true in AuthContext
+        setUserId(user_id)
         setShowModal(false) // Close the login modal
+        console.log('User ID:', user_id)
       } else {
         console.log('Login failed', response.status)
         // TO DO: DISPLAY MESSAGE ON SCREEN
