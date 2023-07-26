@@ -8,7 +8,11 @@ import {
 } from 'react-native'
 import axios from 'axios'
 
-const PostReaction = ({ onReactionSelect, user_post_id, selectedReaction }) => {
+const SubmitReaction = ({
+  onReactionSelect,
+  user_post_id,
+  selectedReaction,
+}) => {
   const availableEmojis = [
     { identifier: 'like', emoji: '👍' },
     { identifier: 'love', emoji: '🩷' },
@@ -31,14 +35,16 @@ const PostReaction = ({ onReactionSelect, user_post_id, selectedReaction }) => {
       }
 
       // Make an HTTP POST request to the server to submit the reaction
-      await axios.post(`${apiUrl}/PostReaction`, {
+      const response = await axios.post(`${apiUrl}/SubmitReaction`, {
         user_post_id,
         reactionType: emojiIdentifier,
       })
+
     } catch (error) {
       console.error('Error submitting reaction:', error)
     }
   }
+  
 
   return (
     <View style={styles.emojiContainer}>
@@ -77,4 +83,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default PostReaction
+export default SubmitReaction

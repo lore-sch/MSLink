@@ -1,6 +1,6 @@
 //post comments on user posts and status
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import {
   View,
   Text,
@@ -11,11 +11,13 @@ import {
   Platform,
 } from 'react-native'
 import axios from 'axios'
+import { AuthContext } from '../components/AuthContext'
 
 const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
-
+  const { userId } = useContext(AuthContext)
+  
   const fetchPostComments = useCallback(async () => {
     try {
       let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
@@ -47,6 +49,7 @@ const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
       const response = await axios.post(apiUrl, {
         user_post_id: post.user_post_id,
         userComment: comment,
+        user_id: userId,
       })
 
       setComment('')

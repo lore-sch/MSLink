@@ -64,6 +64,7 @@ const ProfileEditPage = () => {
       const response = await axios.post(apiUrl, {
         userName: username,
         userStory: userStory,
+        user_id: userId
       })
 
       console.log('Profile updated:', response.data)

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, Platform } from 'react-native'
 import axios from 'axios'
 
-const PostReactionCount = ({ user_post_id, counts }) => {
+const PostReactionCount = ({ user_post_id }) => {
   const availableEmojis = [
     { identifier: 'like', emoji: '👍' },
     { identifier: 'love', emoji: '🩷' },
@@ -28,24 +28,17 @@ const PostReactionCount = ({ user_post_id, counts }) => {
         },
       })
       // Response data with emoji identifiers and numbers as counts- converts to usable format
-      const reactionData = response.data[0] || [] //data from api call, first row
-      const fetchedCounts = {
-        like: reactionData.post_like || 0,
-        love: reactionData.post_love || 0,
-        laugh: reactionData.post_laugh || 0,
-        sad: reactionData.post_sad || 0,
-        anger: reactionData.post_anger || 0,
-      }
-      setReactionCounts(fetchedCounts); //updates state
-      
+      const reactionData = response.data[0] || {} //data from api call, first row
+      setReactionCounts(reactionData) //updates state
+
     } catch (error) {
       console.error('Error fetching reaction counts:', error)
-    }  
-
+    }
   }
+  
   useEffect(() => {
     fetchReactionCount()
-  }, [reactionCounts])
+  }, [])
 
   return (
     //Last line displays reaction count 0 or undefined- alter to only show count if reactions available?
@@ -56,7 +49,9 @@ const PostReactionCount = ({ user_post_id, counts }) => {
         ) => (
           <View key={emojiObj.identifier} style={styles.reactionItem}>
             <Text>{emojiObj.emoji}</Text>
-            <Text style={styles.countText}>{counts[emojiObj.identifier] || 0}</Text>
+            <Text style={styles.countText}>
+              {reactionCounts[emojiObj.identifier] || 0}
+            </Text>
           </View>
         )
       )}
