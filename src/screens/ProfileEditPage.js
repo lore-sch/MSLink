@@ -10,6 +10,7 @@ import {
   ScrollView,
   Platform,
   Modal,
+  ActivityIndicator,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import Story from './Story'
@@ -22,6 +23,7 @@ import * as ImagePicker from 'expo-image-picker'
 const ProfileEditPage = () => {
   const { userId } = useContext(AuthContext)
   const [isEditing, setIsEditing] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
   const [userStory, setUserStory] = useState('')
   const [isCameraModalVisible, setCameraModalVisible] = useState(false)
@@ -30,6 +32,10 @@ const ProfileEditPage = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      if (!userId) {
+        // Wait until userId is available
+        return
+      }
       let apiUrl = 'http://localhost:3000/ProfileEditPage' // Default API URL for iOS
       if (Platform.OS === 'android') {
         apiUrl = 'http://10.0.2.2:3000/ProfileEditPage' // Override API URL for Android
@@ -58,11 +64,14 @@ const ProfileEditPage = () => {
             absoluteImagePath = `http://10.0.2.2:3000/${userProfile.image_path}?v=${cacheBustingValue}` // Override API URL for Android
           }
           setImage(absoluteImagePath) // Set the absolute image path in the image state to display the profile picture
+          setLoading(false)
         } else {
           console.log('User does not have a profile image.')
+          setLoading(false)
         }
       } catch (error) {
         console.error('Error getting profile', error)
+        setLoading(false)
       }
     }
 
@@ -203,29 +212,34 @@ const ProfileEditPage = () => {
   //conditional rendering- event handlers to display save tick or cancel x, exit edit mode, edit username or story
   return (
     <View style={styles.container}>
-      <View style={styles.profilePictureContainer}>
-        {image ? (
-          <Image source={{ uri: image }} style={styles.profilePicture} />
-        ) : (
-          <Image
-            source={require('../../assets/avatar.jpeg')} // You can keep a default avatar image
-            style={styles.profilePicture}
-            onError={(error) =>
-              console.log('Image error:', error.nativeEvent.error)
-            }
-            onLoad={() => console.log('Image loaded successfully')}
-          />
-        )}
-      </View>
+      {loading ? (
+        <ActivityIndicator size='large' color='#17b4ac' /> // Render the loading indicator
+      ) : (
+        // Render the profile picture once the data is fetched and loading is false
+        <View style={styles.profilePictureContainer}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.profilePicture} />
+          ) : (
+            <Image
+              source={require('../../assets/avatar.jpeg')} // You can keep a default avatar image
+              style={styles.profilePicture}
+              onError={(error) =>
+                console.log('Image error:', error.nativeEvent.error)
+              }
+              onLoad={() => console.log('Image loaded successfully')}
+            />
+          )}
+        </View>
+      )}
       {isEditing && (
         <TouchableOpacity style={styles.cameraIcon} onPress={toggleCameraModal}>
-          <Feather name="camera" size={18} color="white" />
+          <Feather name='camera' size={18} color='white' />
         </TouchableOpacity>
       )}
       {isEditing ? (
         <TextInput
           style={styles.editUsername}
-          placeholder="User name"
+          placeholder='User name'
           value={username}
           onChangeText={handleChangeUsername}
         />
@@ -242,20 +256,19 @@ const ProfileEditPage = () => {
           setUserStory={setUserStory}
         />
       </ScrollView>
-
       {isEditing ? (
         <View style={styles.editButtonsContainer}>
           <TouchableOpacity
             style={styles.editButton}
             onPress={handleSaveProfile}
           >
-            <Feather name="check" size={20} color="white" />
+            <Feather name='check' size={20} color='white' />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.editButton}
             onPress={handleCancelEdit}
           >
-            <Feather name="x" size={20} color="white" />
+            <Feather name='x' size={20} color='white' />
           </TouchableOpacity>
         </View>
       ) : (
@@ -264,12 +277,12 @@ const ProfileEditPage = () => {
             style={styles.editButton}
             onPress={handleEditProfile}
           >
-            <Feather name="edit" size={20} color="white" />
+            <Feather name='edit' size={20} color='white' />
           </TouchableOpacity>
         </View>
       )}
       <Modal
-        animationType="slide"
+        animationType='slide'
         transparent={true}
         visible={isCameraModalVisible}
         onRequestClose={() => setCameraModalVisible(false)}
