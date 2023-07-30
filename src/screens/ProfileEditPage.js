@@ -28,7 +28,6 @@ const ProfileEditPage = () => {
   const [userStory, setUserStory] = useState('')
   const [isCameraModalVisible, setCameraModalVisible] = useState(false)
   const [image, setImage] = useState(null)
-  console.log('Initial image value:', image)
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -42,22 +41,18 @@ const ProfileEditPage = () => {
       }
 
       try {
-        console.log('Fetching user profile...')
+    
         const response = await axios.get(apiUrl, {
           params: {
             user_id: userId,
           },
         })
-
         const userProfile = response.data
-        console.log('User profile data:', userProfile)
-
         setUsername(userProfile.user_profile_name)
         setUserStory(userProfile.user_story)
 
         // Check if the user has a profile image
         if (userProfile.image_path) {
-          console.log('User has a profile image:', userProfile.image_path)
           const cacheBustingValue = Date.now() // or any random number
           let absoluteImagePath = `http://localhost:3000/${userProfile.image_path}?v=${cacheBustingValue}`
           if (Platform.OS === 'android') {
@@ -116,7 +111,6 @@ const ProfileEditPage = () => {
   }
 
   useEffect(() => {
-    console.log('Image state updated:', image)
   }, [image])
 
   const choosePhotoFromLibrary = async () => {
@@ -126,10 +120,10 @@ const ProfileEditPage = () => {
       aspect: [4, 3],
       quality: 1,
     })
-    console.log('Library image object:', JSON.stringify(_image))
-    if (!_image.cancelled) {
+
+    if (!_image.canceled) {
       const selectedAsset = _image.assets[0] // Access the selected asset from the "assets" array
-      console.log('Library Image URI:', selectedAsset.uri)
+
 
       // Check if the selected image is different from the current image state
       if (selectedAsset.uri !== image) {
@@ -138,36 +132,6 @@ const ProfileEditPage = () => {
       }
     }
   }
-
-  // const uploadImage = async (imageUri) => {
-  //   try {
-  //     let apiUrl = 'http://localhost:3000/UploadImage' // Replace 'UploadImage' with the correct API endpoint for uploading images on your server
-
-  //     if (Platform.OS === 'android') {
-  //       apiUrl = 'http://10.0.2.2:3000/UploadImage' // Override API URL for Android
-  //     }
-  //     const formData = new FormData()
-  //     formData.append('image', {
-  //       uri: imageUri,
-  //       name: `profile_${Date.now()}.jpg`,
-  //       type: 'image/jpeg',
-  //     })
-
-  //     const response = await fetch(apiUrl, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data',
-  //       },
-  //       body: formData,
-  //     })
-
-  //     const data = await response.json()
-  //     return data.image_url // Return the publicly accessible image URL received from the server
-  //   } catch (error) {
-  //     console.error('Error uploading image:', error)
-  //     return null
-  //   }
-  // }
 
   const handleSaveProfile = async () => {
     try {
@@ -187,7 +151,6 @@ const ProfileEditPage = () => {
           type: 'image/jpeg',
         })
       }
-      console.log('uri of profile pic', image)
 
       // Add profile data to the form data
       formData.append('userName', username)
@@ -200,8 +163,6 @@ const ProfileEditPage = () => {
           'Content-Type': 'multipart/form-data',
         },
       })
-
-      console.log('Profile updated:', profileResponse.data)
       setIsEditing(false)
     } catch (error) {
       console.error('Error updating profile:', error)
