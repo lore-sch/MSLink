@@ -17,6 +17,7 @@ import { FontAwesome } from '@expo/vector-icons'
 import { AntDesign } from '@expo/vector-icons'
 import axios from 'axios'
 import PostResponse from './PostResponse'
+import ImageResponse from './ImageResponse'
 import SubmitReaction from './SubmitReaction'
 import PostReactionCount from './PostReactionCount'
 import { AuthContext } from '../components/AuthContext'
@@ -43,7 +44,6 @@ const LiveFeed = () => {
 
     try {
       const response = await axios.get(apiUrl)
-      console.log('Response from server:', response.data)
 
       const updatedPosts = response.data.map((post) => {
         if (post.type === 'user_image') {
@@ -61,9 +61,7 @@ const LiveFeed = () => {
         return post
       })
 
-      console.log('Updated Posts:', updatedPosts)
       setPosts(updatedPosts)
-      console.log('Posts:', updatedPosts)
     } catch (error) {
       console.error('Error fetching posts:', error)
     }
@@ -85,6 +83,28 @@ const LiveFeed = () => {
 
       const commentsData = response.data || [] // Handle undefined or null comments
       setComments(commentsData)
+    } catch (error) {
+      console.error('Error fetching comments:', error)
+    }
+  }
+
+  const fetchCommentsOnImage = async (user_image_id) => {
+    console.log('Fetching comments for user_image_id:', user_image_id)
+    let apiUrl = 'http://localhost:3000/ImageResponse' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/ImageResponse' // Override API URL for Android
+    }
+
+    //user_post_id to ensure comments related to clicked on post appear
+    try {
+      const response = await axios.get(apiUrl, {
+        params: {
+          user_image_id: user_image_id,
+        },
+      })
+
+      setComments(response.data)
     } catch (error) {
       console.error('Error fetching comments:', error)
     }
@@ -137,6 +157,16 @@ const LiveFeed = () => {
   const openPost = (post) => {
     setSelectedPost(post)
     fetchComments(post.user_post_id)
+  }
+
+  const openImage = (item) => {
+    console.log('Selected Image Post:', item)
+    console.log('User Image ID:', item.user_image_id)
+
+    setSelectedPost(item)
+    console.log('Selected Post after setting:', selectedPost)
+
+    fetchCommentsOnImage(item.user_image_id)
   }
 
   const closePost = () => {
@@ -245,6 +275,7 @@ const LiveFeed = () => {
             <TouchableOpacity onPress={() => openPost(item)}>
               <Text style={styles.postComment}>View comments</Text>
             </TouchableOpacity>
+
             <SubmitReaction
               onReactionSelect={handlePostReaction}
               user_post_id={item.user_post_id}
@@ -254,6 +285,8 @@ const LiveFeed = () => {
         </View>
       )
     } else if (item.type === 'user_image') {
+      console.log('Item Type:', item.type)
+      console.log('item object: ', item)
       return (
         <View style={styles.postItemContainer}>
           <Text style={styles.userName}>{item.user_profile_name}</Text>
@@ -264,21 +297,25 @@ const LiveFeed = () => {
               console.log('Image loading error:', error.nativeEvent.error)
             }
           />
-          <PostReactionCount
-            user_post_id={item.user_post_id}
-            counts={reactions[item.user_post_id] || {}}
-            onReactionSelect={handlePostReaction}
-            selectedReaction={reactions[item.user_post_id] || null}
-          />
-          <View style={styles.reactionContainer}>
-            <TouchableOpacity onPress={() => openPost(item)}>
-              <Text style={styles.postComment}>View comments</Text>
-            </TouchableOpacity>
-            <SubmitReaction
-              onReactionSelect={handlePostReaction}
+          {
+            <PostReactionCount
               user_post_id={item.user_post_id}
+              counts={reactions[item.user_post_id] || {}}
+              onReactionSelect={handlePostReaction}
               selectedReaction={reactions[item.user_post_id] || null}
             />
+          }
+          <View style={styles.reactionContainer}>
+            <TouchableOpacity onPress={() => openImage(item)}>
+              <Text style={styles.postComment}>View comments</Text>
+            </TouchableOpacity>
+            {
+              <SubmitReaction
+                onReactionSelect={handlePostReaction}
+                user_post_id={item.user_post_id}
+                selectedReaction={reactions[item.user_post_id] || null}
+              />
+            }
           </View>
         </View>
       )
@@ -362,12 +399,21 @@ const LiveFeed = () => {
         ListFooterComponent={
           selectedPost && (
             <Modal visible={true} onRequestClose={closePost}>
-              <PostResponse
-                post={selectedPost}
-                comments={comments}
-                fetchComments={fetchComments}
-                user_post_id={selectedPost.user_post_id}
-              />
+              {selectedPost.type === 'user_post' ? (
+                <PostResponse
+                  post={selectedPost}
+                  comments={comments}
+                  fetchComments={fetchComments}
+                  user_post_id={selectedPost.user_post_id}
+                />
+              ) : selectedPost.type === 'user_image' ? (
+                <ImageResponse
+                  post={selectedPost}
+                  comments={comments}
+                  fetchImageComments={fetchCommentsOnImage}
+                  user_image_id={selectedPost.user_image_id}
+                />
+              ) : null}
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
                 <Feather name='x' size={14} color='white' />
               </TouchableOpacity>
