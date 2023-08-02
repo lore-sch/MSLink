@@ -89,7 +89,6 @@ const LiveFeed = () => {
   }
 
   const fetchCommentsOnImage = async (user_image_id) => {
-    console.log('Fetching comments for user_image_id:', user_image_id)
     let apiUrl = 'http://localhost:3000/ImageResponse' // Default API URL for iOS
 
     if (Platform.OS === 'android') {
@@ -104,7 +103,8 @@ const LiveFeed = () => {
         },
       })
 
-      setComments(response.data)
+      const commentsData = response.data || []
+      setComments(commentsData)
     } catch (error) {
       console.error('Error fetching comments:', error)
     }
@@ -159,14 +159,13 @@ const LiveFeed = () => {
     fetchComments(post.user_post_id)
   }
 
-  const openImage = (item) => {
-    console.log('Selected Image Post:', item)
-    console.log('User Image ID:', item.user_image_id)
-
-    setSelectedPost(item)
-    console.log('Selected Post after setting:', selectedPost)
-
-    fetchCommentsOnImage(item.user_image_id)
+  const openImage = (post) => {
+    setSelectedPost({
+      ...post,
+      image_id: post.image_id,
+      image_path: post.image_path, // Replace 'image_path' with the actual key for image_path in the item object
+    })
+    fetchCommentsOnImage(post.user_image_id)
   }
 
   const closePost = () => {
@@ -285,8 +284,6 @@ const LiveFeed = () => {
         </View>
       )
     } else if (item.type === 'user_image') {
-      console.log('Item Type:', item.type)
-      console.log('item object: ', item)
       return (
         <View style={styles.postItemContainer}>
           <Text style={styles.userName}>{item.user_profile_name}</Text>
@@ -410,7 +407,7 @@ const LiveFeed = () => {
                 <ImageResponse
                   post={selectedPost}
                   comments={comments}
-                  fetchImageComments={fetchCommentsOnImage}
+                  fetchCommentsOnImage={fetchCommentsOnImage}
                   user_image_id={selectedPost.user_image_id}
                 />
               ) : null}

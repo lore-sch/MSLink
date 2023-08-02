@@ -9,6 +9,7 @@ import {
   FlatList,
   StyleSheet,
   Platform,
+  Image,
 } from 'react-native'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
@@ -16,14 +17,12 @@ import { AuthContext } from '../components/AuthContext'
 const ImageResponse = ({
   post: imagePost,
   comments,
-  fetchComments,
+  fetchCommentsOnImage,
   user_image_id,
 }) => {
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
-  console.log('Received Post:', imagePost)
-  console.log('Received Comments:', comments)
 
   const fetchImageComments = useCallback(async () => {
     try {
@@ -42,17 +41,11 @@ const ImageResponse = ({
     } catch (error) {
       console.error('Error fetching comments:', error)
     }
-  }, [user_image_id])
+  }, [imagePost])
 
   //to post comments to existing comments on status
   const addComment = async () => {
     try {
-      console.log('Adding comment:', {
-        user_image_id: user_image_id,
-        userComment: comment,
-        user_id: userId,
-        post_comment_timestamp: new Date().toISOString(),
-      })
       let apiUrl = 'http://localhost:3000/ImageResponse' // Default API URL for iOS
 
       if (Platform.OS === 'android') {
@@ -60,16 +53,14 @@ const ImageResponse = ({
       }
 
       const response = await axios.post(apiUrl, {
-        user_image_id: user_image_id,
         userComment: comment,
+        user_image_id: imagePost.user_image_id,
         user_id: userId,
-        post_comment_timestamp: new Date().toISOString(),
       })
 
       setComment('')
-      fetchComments(user_image_id)
+      fetchCommentsOnImage(user_image_id)
       setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
-      console.log('Post response:', response.data)
     } catch (error) {
       console.error('Error posting:', error)
     }
@@ -77,7 +68,7 @@ const ImageResponse = ({
 
   const renderComment = ({ item }) => {
     if (!item || !item.image_comment_id) {
-      return null // skips rendering if the comment/ the post_comment_id undefined (avoids axios error)
+      return null // skips rendering if the comment/ the image_comment_id undefined (avoids axios error)
     }
     return (
       <View style={styles.commentsContainer}>
@@ -88,19 +79,25 @@ const ImageResponse = ({
   }
 
   useEffect(() => {
-    fetchImageComments(user_image_id) // Fetch comments when the component mounts
-  }, [fetchImageComments, user_image_id])
+    fetchImageComments() // Fetch comments when the component mounts
+  }, [fetchImageComments])
 
   return (
     <View style={styles.container}>
       <View style={styles.postContainer}>
         <Text style={styles.postUserName}>{imagePost.user_profile_name}</Text>
-        <Text style={styles.postText}>{imagePost.user_post}</Text>
+        <Image
+          source={{ uri: imagePost.image_path }}
+          style={styles.selectedImage}
+          onError={(error) =>
+            console.log('Image loading error:', error.nativeEvent.error)
+          }
+        />
       </View>
 
       <View style={styles.commentsContainer}>
         <FlatList
-          data={commentList} // Use commentList instead of comments
+          data={comments}
           renderItem={renderComment}
           keyExtractor={(item) => item.image_comment_id.toString()}
         />
@@ -188,6 +185,11 @@ const styles = StyleSheet.create({
     color: 'deepskyblue',
     marginLeft: 20,
     marginRight: 20,
+  },
+  selectedImage: {
+    marginTop: 20,
+    width: 350,
+    height: 250,
   },
 })
 
