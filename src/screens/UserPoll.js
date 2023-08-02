@@ -17,20 +17,25 @@ const SquareButton = ({ title, onPress }) => (
   </TouchableOpacity>
 )
 
-const UserPoll = ({closePoll}) => {
+const UserPoll = ({ closePoll }) => {
   const [voteData, setVoteData] = useState()
   const [totalVotes, setTotalVotes] = useState()
   const [voted, setVoted] = useState(false)
   const [pollQuestion, setPollQuestion] = useState('')
-  const [pollOptions, setPollOptions] = useState([])
+  const [pollOptions, setPollOptions] = useState(['', '', ''])
+  const { userId } = useContext(AuthContext)
 
   const pollQuestionHandler = (pollQuestion) => {
     setPollQuestion(pollQuestion)
   }
 
-  const pollOptionsHandler = (pollOptions) => {
-    setPollOptions(pollOptions)
+  //use index to ensure all 3 fields are posted into 3 option fields in database
+  const pollOptionsHandler = (index, option) => {
+    const updatedOptions = [...pollOptions]
+    updatedOptions[index] = option
+    setPollOptions(updatedOptions)
   }
+
   const pollHandler = async () => {
     let apiUrl = 'http://localhost:3000/UserPoll' // Default API URL for iOS
 
@@ -42,10 +47,13 @@ const UserPoll = ({closePoll}) => {
       const response = await axios.post(apiUrl, {
         pollQuestion: pollQuestion,
         pollOptions: pollOptions,
+        user_id: userId,
       })
       //resets text input fields to empty
       setPollQuestion('')
       setPollOptions('')
+
+      cancelPoll()
     } catch (error) {}
   }
 
@@ -65,19 +73,19 @@ const UserPoll = ({closePoll}) => {
       <Text style={styles.optionPrompt}>Option one: </Text>
       <TextInput
         style={styles.textInput}
-        onChangeText={pollOptionsHandler}
+        onChangeText={(text) => pollOptionsHandler(0, text)}
         multiline={true}
       />
       <Text style={styles.optionPrompt}>Option two: </Text>
       <TextInput
         style={styles.textInput}
-        onChangeText={pollOptionsHandler}
+        onChangeText={(text) => pollOptionsHandler(1, text)}
         multiline={true}
       />
       <Text style={styles.optionPrompt}>Option three: </Text>
       <TextInput
         style={styles.textInput}
-        onChangeText={pollOptionsHandler}
+        onChangeText={(text) => pollOptionsHandler(2, text)}
         multiline={true}
       />
 
