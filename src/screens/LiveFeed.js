@@ -20,6 +20,7 @@ import PostResponse from './PostResponse'
 import ImageResponse from './ImageResponse'
 import SubmitReaction from './SubmitReaction'
 import PostReactionCount from './PostReactionCount'
+import UserPoll from './UserPoll'
 import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
 
@@ -30,6 +31,7 @@ const LiveFeed = () => {
   const [comments, setComments] = useState([])
   const [reactions, setReactions] = useState({}) // State to store reactions for each post
   const [isCameraModalVisible, setCameraModalVisible] = useState(false)
+  const [isPollModalVisible, setPollModalVisible] = useState(false)
   const [image, setImage] = useState(null)
   const { userId } = useContext(AuthContext)
 
@@ -163,7 +165,7 @@ const LiveFeed = () => {
     setSelectedPost({
       ...post,
       image_id: post.image_id,
-      image_path: post.image_path, // Replace 'image_path' with the actual key for image_path in the item object
+      image_path: post.image_path,
     })
     fetchCommentsOnImage(post.user_image_id)
   }
@@ -225,6 +227,14 @@ const LiveFeed = () => {
     } catch (error) {
       console.error('Error selecting photo:', error)
     }
+  }
+
+  const showPollModal = () => {
+    setPollModalVisible(true)
+  }
+
+  const hidePollModal = () => {
+    setPollModalVisible(false)
   }
 
   const handlePostReaction = async (userPostId, emojiIdentifier) => {
@@ -324,7 +334,7 @@ const LiveFeed = () => {
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder='Share with us...'
+          placeholder="Share with us..."
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
@@ -332,23 +342,25 @@ const LiveFeed = () => {
       </View>
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
+        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
         <TouchableOpacity
           style={styles.optionText}
           onPress={() => setCameraModalVisible(true)}
         >
           <Text style={styles.optionText}>Photo</Text>
-          <FontAwesome name='photo' size={20} color='deepskyblue' />
+          <FontAwesome name="photo" size={20} color="deepskyblue" />
         </TouchableOpacity>
-        <Text style={styles.optionText}>Poll</Text>
-        <AntDesign name='barschart' size={20} color='deepskyblue' />
+        <TouchableOpacity style={styles.optionText} onPress={showPollModal}>
+          <Text style={styles.optionText}>Poll</Text>
+          <AntDesign name="barschart" size={20} color="deepskyblue" />
+        </TouchableOpacity>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
             <Text style={styles.buttonText}>Post</Text>
           </TouchableOpacity>
         </View>
         <Modal
-          animationType='slide'
+          animationType="slide"
           transparent={true}
           visible={isCameraModalVisible}
           onRequestClose={() => setCameraModalVisible(false)}
@@ -383,6 +395,18 @@ const LiveFeed = () => {
             </View>
           </View>
         </Modal>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isPollModalVisible}
+          onRequestClose={hidePollModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <UserPoll closePoll={hidePollModal} />
+            </View>
+          </View>
+        </Modal>
       </View>
       <FlatList
         style={styles.list}
@@ -412,7 +436,7 @@ const LiveFeed = () => {
                 />
               ) : null}
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-                <Feather name='x' size={14} color='white' />
+                <Feather name="x" size={14} color="white" />
               </TouchableOpacity>
             </Modal>
           )
@@ -454,7 +478,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   optionText: {
-    paddingHorizontal: 18,
+    paddingHorizontal: 15,
     color: 'deepskyblue',
     flexDirection: 'row',
   },
