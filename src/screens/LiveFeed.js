@@ -33,6 +33,7 @@ const LiveFeed = () => {
   const [isCameraModalVisible, setCameraModalVisible] = useState(false)
   const [isPollModalVisible, setPollModalVisible] = useState(false)
   const [image, setImage] = useState(null)
+  const [pollResult, setPollResult] = useState(null)
   const { userId } = useContext(AuthContext)
 
   //TO DOL: Set up individual component for android/ios route
@@ -49,17 +50,29 @@ const LiveFeed = () => {
 
       const updatedPosts = response.data.map((post) => {
         if (post.type === 'user_image') {
-          // Construct the absolute image URL
           let absoluteImagePath = `http://localhost:3000/${post.image_path}`
           if (Platform.OS === 'android') {
             absoluteImagePath = `http://10.0.2.2:3000/${post.image_path}`
           }
-          // Return a new object with the updated image_path
           return {
             ...post,
             image_path: absoluteImagePath,
           }
+        } else if (post.type === 'user_poll') {
+          // Handle the user_poll data here
+          // For example, you can construct the poll options as an array of strings
+          const pollOptions = [
+            post.user_poll_option_1,
+            post.user_poll_option_2,
+            post.user_poll_option_3,
+          ]
+          // Return a new object with the updated pollOptions array
+          return {
+            ...post,
+            pollOptions: pollOptions,
+          }
         }
+
         return post
       })
 
@@ -267,6 +280,21 @@ const LiveFeed = () => {
     }))
   }
 
+  const pollResultsHandler = async (option, user_poll_id) => {
+    let apiUrl = 'http://localhost:3000/pollResults' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/pollResults' // Override API URL for Android
+    }
+    try {
+      const response = await axios.post(apiUrl, {
+        pollResult: option,
+        user_poll_id: user_poll_id,
+      })
+      setPollResult(option)
+    } catch (error) {}
+  }
+
   //redners user profile name and their 'status' or post- also shows reactions count but not working currently- all 0
   const renderPostItem = ({ item }) => {
     if (item.type === 'user_post') {
@@ -324,6 +352,62 @@ const LiveFeed = () => {
               />
             }
           </View>
+        </View>
+      )
+    } else if (item.type === 'user_poll') {
+      return (
+        <View style={styles.postItemContainer}>
+          <Text style={styles.userName}>{item.user_profile_name}</Text>
+          <Text style={styles.pollQuestion}>{item.user_poll_question}</Text>
+          <TouchableOpacity
+            style={[
+              styles.pollStyling,
+              pollResult === item.user_poll_option_1
+                ? styles.selectedOption
+                : null,
+            ]}
+            onPress={() =>
+              pollResultsHandler(
+                'Option 1',
+                item.user_poll_id
+              )
+            }
+          >
+            <Text style={styles.pollOption}>{item.user_poll__option_1}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.pollStyling,
+              pollResult === item.user_poll_option_2
+                ? styles.selectedOption
+                : null,
+            ]}
+            onPress={() =>
+              pollResultsHandler(
+                'Option 2',
+                item.user_poll_id
+              )
+            }
+          >
+            <Text style={styles.pollOption}>{item.user_poll_option_2}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.pollStyling,
+              pollResult === item.user_poll_option_3
+                ? styles.selectedOption
+                : null,
+            ]}
+            onPress={() =>
+              pollResultsHandler(
+                'Option 3',
+                item.user_poll_id
+              )
+            }
+          >
+            <Text style={styles.pollOption}>{item.user_poll_option_3}</Text>
+          </TouchableOpacity>
+          <View style={styles.reactionContainer} />
         </View>
       )
     }
@@ -403,7 +487,11 @@ const LiveFeed = () => {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <UserPoll closePoll={hidePollModal} />
+              <UserPoll
+                closePoll={hidePollModal}
+                pollResult={pollResult}
+                setPollResult={setPollResult}
+              />
             </View>
           </View>
         </Modal>
@@ -561,6 +649,21 @@ const styles = StyleSheet.create({
   image: {
     width: 350,
     height: 250,
+  },
+  pollQuestion: {
+    color: 'black',
+    fontSize: 16,
+  },
+  pollStyling: {
+    marginTop: 20,
+    backgroundColor: 'white',
+    width: 350,
+    height: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'deepskyblue',
   },
 })
 

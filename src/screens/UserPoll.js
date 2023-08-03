@@ -29,13 +29,14 @@ const UserPoll = ({ closePoll }) => {
     setPollQuestion(pollQuestion)
   }
 
-  //use index to ensure all 3 fields are posted into 3 option fields in database
+  //use index to ensure all 3 fields are posted into 3 option fields in database, poll creation
   const pollOptionsHandler = (index, option) => {
     const updatedOptions = [...pollOptions]
     updatedOptions[index] = option
     setPollOptions(updatedOptions)
   }
 
+  //handles creation of new polls and posting
   const pollHandler = async () => {
     let apiUrl = 'http://localhost:3000/UserPoll' // Default API URL for iOS
 
@@ -60,6 +61,7 @@ const UserPoll = ({ closePoll }) => {
   const cancelPoll = () => {
     closePoll()
   }
+
 
   return (
     <View style={styles.pollContainer}>
