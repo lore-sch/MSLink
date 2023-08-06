@@ -34,6 +34,7 @@ const LiveFeed = () => {
   const [isPollModalVisible, setPollModalVisible] = useState(false)
   const [image, setImage] = useState(null)
   const [pollResult, setPollResult] = useState(null)
+  const [pollResultsData, setPollResultsData] = useState({})
   const { userId } = useContext(AuthContext)
 
   //TO DOL: Set up individual component for android/ios route
@@ -122,6 +123,32 @@ const LiveFeed = () => {
       setComments(commentsData)
     } catch (error) {
       console.error('Error fetching comments:', error)
+    }
+  }
+
+  const fetchPollResults = async (user_poll_id) => {
+    let apiUrl = 'http://localhost:3000/pollResults' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/pollResults' // Override API URL for Android
+    }
+    try {
+      const response = await axios.get(apiUrl, {
+        params: {
+          user_poll_id: user_poll_id,
+        },
+      })
+      const pollResultData = response.data[0]
+
+      // Update the state with the fetched poll results data
+      setPollResultsData((prevData) => {
+        return {
+          ...prevData,
+          [user_poll_id]: pollResultData,
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching poll results:', error)
     }
   }
 
@@ -279,7 +306,7 @@ const LiveFeed = () => {
       [userPostId]: reactionType,
     }))
   }
-
+  //post route for user voting in polls
   const pollResultsHandler = async (option, user_poll_id) => {
     let apiUrl = 'http://localhost:3000/pollResults' // Default API URL for iOS
 
@@ -292,6 +319,7 @@ const LiveFeed = () => {
         user_poll_id: user_poll_id,
       })
       setPollResult(option)
+      fetchPollResults(user_poll_id)
     } catch (error) {}
   }
 
@@ -354,60 +382,81 @@ const LiveFeed = () => {
           </View>
         </View>
       )
+      //will render results it vote cast
     } else if (item.type === 'user_poll') {
+      const showResults = pollResultsData && pollResultsData[item.user_poll_id]
       return (
         <View style={styles.postItemContainer}>
           <Text style={styles.userName}>{item.user_profile_name}</Text>
           <Text style={styles.pollQuestion}>{item.user_poll_question}</Text>
-          <TouchableOpacity
-            style={[
-              styles.pollStyling,
-              pollResult === item.user_poll_option_1
-                ? styles.selectedOption
-                : null,
-            ]}
-            onPress={() =>
-              pollResultsHandler(
-                'Option 1',
-                item.user_poll_id
-              )
-            }
-          >
-            <Text style={styles.pollOption}>{item.user_poll__option_1}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.pollStyling,
-              pollResult === item.user_poll_option_2
-                ? styles.selectedOption
-                : null,
-            ]}
-            onPress={() =>
-              pollResultsHandler(
-                'Option 2',
-                item.user_poll_id
-              )
-            }
-          >
-            <Text style={styles.pollOption}>{item.user_poll_option_2}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.pollStyling,
-              pollResult === item.user_poll_option_3
-                ? styles.selectedOption
-                : null,
-            ]}
-            onPress={() =>
-              pollResultsHandler(
-                'Option 3',
-                item.user_poll_id
-              )
-            }
-          >
-            <Text style={styles.pollOption}>{item.user_poll_option_3}</Text>
-          </TouchableOpacity>
-          <View style={styles.reactionContainer} />
+
+          {showResults ? (
+            <View>
+              <View style={styles.pollStylingResult}>
+                <Text>
+                  {item.user_poll_option_1}:{' '}
+                  {pollResultsData[item.user_poll_id].user_poll_result_option_1}
+                </Text>
+              </View>
+              <View style={styles.pollStylingResult}>
+                <Text>
+                  {item.user_poll_option_2}:{' '}
+                  {pollResultsData[item.user_poll_id].user_poll_result_option_2}
+                </Text>
+              </View>
+              <View style={styles.pollStylingResult}>
+                <Text>
+                  {item.user_poll_option_3}:{' '}
+                  {pollResultsData[item.user_poll_id].user_poll_result_option_3}
+                </Text>
+              </View>
+            </View>
+          ) : (
+            // render options if user hasn't voted yet
+            <View>
+              <TouchableOpacity
+                style={[
+                  styles.pollStyling,
+                  pollResult === item.user_poll_option_1
+                    ? styles.selectedOption
+                    : null,
+                ]}
+                onPress={() =>
+                  pollResultsHandler('Option 1', item.user_poll_id)
+                }
+              >
+                <Text style={styles.pollOption}>{item.user_poll_option_1}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.pollStyling,
+                  pollResult === item.user_poll_option_2
+                    ? styles.selectedOption
+                    : null,
+                ]}
+                onPress={() =>
+                  pollResultsHandler('Option 2', item.user_poll_id)
+                }
+              >
+                <Text style={styles.pollOption}>{item.user_poll_option_2}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.pollStyling,
+                  pollResult === item.user_poll_option_3
+                    ? styles.selectedOption
+                    : null,
+                ]}
+                onPress={() =>
+                  pollResultsHandler('Option 3', item.user_poll_id)
+                }
+              >
+                <Text style={styles.pollOption}>{item.user_poll_option_3}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       )
     }
@@ -657,6 +706,17 @@ const styles = StyleSheet.create({
   pollStyling: {
     marginTop: 20,
     backgroundColor: 'white',
+    width: 350,
+    height: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'deepskyblue',
+  },
+  pollStylingResult: {
+    marginTop: 20,
+    backgroundColor: '#87e8e8',
     width: 350,
     height: 25,
     alignItems: 'center',
