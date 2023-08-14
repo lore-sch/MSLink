@@ -35,6 +35,8 @@ const LiveFeed = () => {
   const [image, setImage] = useState(null)
   const [pollResult, setPollResult] = useState(null)
   const [pollResultsData, setPollResultsData] = useState({})
+  const [hasVoted, setHasVoted] = useState(false)
+  const [votingStatus, setVotingStatus] = useState({})
   const { userId } = useContext(AuthContext)
 
   //TO DOL: Set up individual component for android/ios route
@@ -149,6 +151,31 @@ const LiveFeed = () => {
       })
     } catch (error) {
       console.error('Error fetching poll results:', error)
+    }
+  }
+
+  const fetchUserVotingStatus = async (user_poll_id, user_id) => {
+    let apiUrl = 'http://localhost:3000/PollResults' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/PollResults' // Override API URL for Android
+    }
+
+    try {
+      const response = await axios.get(apiUrl, {
+        params: {
+          user_poll_id: user_poll_id,
+          user_id: userId,
+        },
+      })
+
+      const hasVoted = response.data.length > 0
+      setVotingStatus((prevStatus) => ({
+        ...prevStatus,
+        [user_poll_id]: hasVoted,
+      }))
+    } catch (error) {
+      console.error('Error fetching comments:', error)
     }
   }
 
@@ -307,7 +334,7 @@ const LiveFeed = () => {
     }))
   }
   //post route for user voting in polls
-  const pollResultsHandler = async (option, user_poll_id) => {
+  const pollResultsHandler = async (option, user_poll_id, user_id) => {
     let apiUrl = 'http://localhost:3000/pollResults' // Default API URL for iOS
 
     if (Platform.OS === 'android') {
@@ -317,9 +344,15 @@ const LiveFeed = () => {
       const response = await axios.post(apiUrl, {
         pollResult: option,
         user_poll_id: user_poll_id,
+        user_id: userId,
       })
       setPollResult(option)
       fetchPollResults(user_poll_id)
+
+      setVotingStatus((prevStatus) => ({
+        ...prevStatus,
+        [user_poll_id]: true,
+      }))
     } catch (error) {}
   }
 
@@ -385,34 +418,46 @@ const LiveFeed = () => {
       //will render results it vote cast
     } else if (item.type === 'user_poll') {
       const showResults = pollResultsData && pollResultsData[item.user_poll_id]
+      const hasVoted = votingStatus[item.user_poll_id] // Get hasVoted for the specific poll item
+
       return (
         <View style={styles.postItemContainer}>
           <Text style={styles.userName}>{item.user_profile_name}</Text>
           <Text style={styles.pollQuestion}>{item.user_poll_question}</Text>
 
-          {showResults ? (
+          {hasVoted ? ( // Conditionally render based on the hasVoted flag
+            // Render the poll results if the user has voted
             <View>
               <View style={styles.pollStylingResult}>
                 <Text>
                   {item.user_poll_option_1}:{' '}
-                  {pollResultsData[item.user_poll_id].user_poll_result_option_1}
+                  {
+                    pollResultsData[item.user_poll_id]
+                      ?.user_poll_result_option_1
+                  }
                 </Text>
               </View>
               <View style={styles.pollStylingResult}>
                 <Text>
                   {item.user_poll_option_2}:{' '}
-                  {pollResultsData[item.user_poll_id].user_poll_result_option_2}
+                  {
+                    pollResultsData[item.user_poll_id]
+                      ?.user_poll_result_option_2
+                  }
                 </Text>
               </View>
               <View style={styles.pollStylingResult}>
                 <Text>
                   {item.user_poll_option_3}:{' '}
-                  {pollResultsData[item.user_poll_id].user_poll_result_option_3}
+                  {
+                    pollResultsData[item.user_poll_id]
+                      ?.user_poll_result_option_3
+                  }
                 </Text>
               </View>
             </View>
           ) : (
-            // render options if user hasn't voted yet
+            // Render voting options if the user hasn't voted yet
             <View>
               <TouchableOpacity
                 style={[
@@ -467,7 +512,7 @@ const LiveFeed = () => {
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder="Share with us..."
+          placeholder='Share with us...'
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
@@ -475,17 +520,17 @@ const LiveFeed = () => {
       </View>
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
+        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
         <TouchableOpacity
           style={styles.optionText}
           onPress={() => setCameraModalVisible(true)}
         >
           <Text style={styles.optionText}>Photo</Text>
-          <FontAwesome name="photo" size={20} color="deepskyblue" />
+          <FontAwesome name='photo' size={20} color='deepskyblue' />
         </TouchableOpacity>
         <TouchableOpacity style={styles.optionText} onPress={showPollModal}>
           <Text style={styles.optionText}>Poll</Text>
-          <AntDesign name="barschart" size={20} color="deepskyblue" />
+          <AntDesign name='barschart' size={20} color='deepskyblue' />
         </TouchableOpacity>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
@@ -493,7 +538,7 @@ const LiveFeed = () => {
           </TouchableOpacity>
         </View>
         <Modal
-          animationType="slide"
+          animationType='slide'
           transparent={true}
           visible={isCameraModalVisible}
           onRequestClose={() => setCameraModalVisible(false)}
@@ -529,7 +574,7 @@ const LiveFeed = () => {
           </View>
         </Modal>
         <Modal
-          animationType="slide"
+          animationType='slide'
           transparent={true}
           visible={isPollModalVisible}
           onRequestClose={hidePollModal}
@@ -573,7 +618,7 @@ const LiveFeed = () => {
                 />
               ) : null}
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-                <Feather name="x" size={14} color="white" />
+                <Feather name='x' size={14} color='white' />
               </TouchableOpacity>
             </Modal>
           )

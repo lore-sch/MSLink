@@ -77,10 +77,9 @@ const ProfileEditPage = () => {
     setIsEditing(true)
   }
 
-  //username should be  called from database
+  //cancel edit and maintain username
   const handleCancelEdit = () => {
     setIsEditing(false)
-    setUsername('')
   }
 
   //database needs to update
