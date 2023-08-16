@@ -11,6 +11,7 @@ import axios from 'axios'
 const SubmitReaction = ({
   onReactionSelect,
   user_post_id,
+  user_image_id,
   selectedReaction,
 }) => {
   const availableEmojis = [
@@ -25,45 +26,57 @@ const SubmitReaction = ({
 
   const handleEmojiClick = async (emojiIdentifier) => {
     setSelectedEmoji(emojiIdentifier)
-    onReactionSelect(user_post_id, emojiIdentifier)
+   
+    if (user_post_id) {
+      onReactionSelect(user_post_id, emojiIdentifier)
+      try {
+        // Determine the API URL based on the platform (Android or iOS)
+        let apiUrl = 'http://localhost:3000' // Default API URL for iOS
+        if (Platform.OS === 'android') {
+          apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
+        }
 
-    try {
-      // Determine the API URL based on the platform (Android or iOS)
-      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
+        // Make an HTTP POST request to the server to submit the reaction
+        const response = await axios.post(`${apiUrl}/SubmitReaction`, {
+          user_post_id: user_post_id,
+          reactionType: emojiIdentifier,
+        })
+      } catch (error) {
+        console.error('Error submitting reaction:', error)
       }
-
-      // Make an HTTP POST request to the server to submit the reaction
-      const response = await axios.post(`${apiUrl}/SubmitReaction`, {
-        user_post_id,
-        reactionType: emojiIdentifier,
-      })
-
-    } catch (error) {
-      console.error('Error submitting reaction:', error)
+    } else {
+      onReactionSelect(user_image_id, emojiIdentifier)
+      try {
+        // Determine the API URL based on the platform (Android or iOS)
+        let apiUrl = 'http://localhost:3000' // Default API URL for iOS
+        if (Platform.OS === 'android') {
+          apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
+        }
+        // Make an HTTP POST request to the server to submit the reaction
+        const response = await axios.post(`${apiUrl}/SubmitImageReaction`, {
+          user_image_id: user_image_id,
+          reactionType: emojiIdentifier,
+        })
+      } catch (error) {
+        console.error('Error submitting reaction:', error)
+      }
     }
   }
-  
 
   return (
     <View style={styles.emojiContainer}>
-      {availableEmojis.map(
-        (
-          emojiObj //loops through available emojis
-        ) => (
-          <TouchableOpacity //emoji buttons
-            key={emojiObj.identifier}
-            onPress={() => handleEmojiClick(emojiObj.identifier)} //function called when emoji clicked, identfier is an argument passed as a function to determine emoji
-            style={[
-              styles.emojiButton,
-              selectedEmoji === emojiObj.identifier && styles.selectedEmoji,
-            ]}
-          >
-            <Text>{emojiObj.emoji}</Text>
-          </TouchableOpacity>
-        )
-      )}
+      {availableEmojis.map((emojiObj) => (
+        <TouchableOpacity
+          key={emojiObj.identifier}
+          onPress={() => handleEmojiClick(emojiObj.identifier)}
+          style={[
+            styles.emojiButton,
+            selectedEmoji === emojiObj.identifier && styles.selectedEmoji,
+          ]}
+        >
+          <Text>{emojiObj.emoji}</Text>
+        </TouchableOpacity>
+      ))}
     </View>
   )
 }

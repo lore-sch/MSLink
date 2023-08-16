@@ -19,7 +19,7 @@ import axios from 'axios'
 import PostResponse from './PostResponse'
 import ImageResponse from './ImageResponse'
 import SubmitReaction from './SubmitReaction'
-import PostReactionCount from './PostReactionCount'
+//import PostReactionCount from './PostReactionCount'
 import UserPoll from './UserPoll'
 import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
@@ -304,7 +304,7 @@ const LiveFeed = () => {
     setPollModalVisible(false)
   }
 
-  const handlePostReaction = async (userPostId, emojiIdentifier) => {
+  const handlePostReaction = async (user_post_id, emojiIdentifier) => {
     try {
       // Determine the API URL based on the platform (Android or iOS)
       let apiUrl = 'http://localhost:3000' // Default API URL for iOS
@@ -314,25 +314,55 @@ const LiveFeed = () => {
 
       // Make an HTTP POST request to the server to submit the reaction
       const response = await axios.post(`${apiUrl}/SubmitReaction`, {
-        user_post_id: userPostId,
+        user_post_id: user_post_id,
         reactionType: emojiIdentifier,
       })
 
       const updatedReactionCounts = response.data
 
       // Update the reaction state for the current post
-      updatePostReaction(userPostId, updatedReactionCounts)
+      updatePostReaction(user_post_id, updatedReactionCounts)
     } catch (error) {
       console.error('Error submitting reaction:', error)
     }
   }
 
-  const updatePostReaction = (userPostId, reactionType) => {
+  const handleImageReaction = async (user_image_id, emojiIdentifier) => {
+    try {
+      // Determine the API URL based on the platform (Android or iOS)
+      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
+      if (Platform.OS === 'android') {
+        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
+      }
+
+      // Make an HTTP POST request to the server to submit the reaction
+      const response = await axios.post(`${apiUrl}/SubmitImageReaction`, {
+        user_image_id: user_image_id,
+        reactionType: emojiIdentifier,
+      })
+
+      const updatedReactionCounts = response.data
+
+      // Update the reaction state for the current post
+      updateImageReaction(user_image_id, updatedReactionCounts)
+    } catch (error) {
+      console.error('Error submitting reaction:', error)
+    }
+  }
+  const updatePostReaction = (user_post_id, reactionType) => {
     setReactions((prevReactions) => ({
       ...prevReactions,
-      [userPostId]: reactionType,
+      [user_post_id]: reactionType,
     }))
   }
+
+  const updateImageReaction = (user_image_id, reactionType) => {
+    setReactions((prevReactions) => ({
+      ...prevReactions,
+      [user_image_id]: reactionType,
+    }))
+  }
+
   //post route for user voting in polls
   const pollResultsHandler = async (option, user_poll_id, user_id) => {
     let apiUrl = 'http://localhost:3000/pollResults' // Default API URL for iOS
@@ -356,6 +386,21 @@ const LiveFeed = () => {
     } catch (error) {}
   }
 
+  const renderEmojiCount = (count) => {
+    const hasValue = count !== null && count !== 0
+
+    return (
+      <Text
+        style={[
+          styles.emojiResultsContainer,
+          hasValue ? null : styles.noEmojiResult,
+        ]}
+      >
+        {hasValue ? count : ' '}
+      </Text>
+    )
+  }
+
   //redners user profile name and their 'status' or post- also shows reactions count but not working currently- all 0
   const renderPostItem = ({ item }) => {
     if (item.type === 'user_post') {
@@ -363,22 +408,22 @@ const LiveFeed = () => {
         <View style={styles.postItemContainer}>
           <Text style={styles.userName}>{item.user_profile_name}</Text>
           <Text style={styles.postText}>{item.user_post}</Text>
-          <PostReactionCount
-            user_post_id={item.user_post_id}
-            counts={reactions[item.user_post_id] || {}}
-            onReactionSelect={handlePostReaction}
-            selectedReaction={reactions[item.user_post_id] || null}
-          />
           <View style={styles.reactionContainer}>
             <TouchableOpacity onPress={() => openPost(item)}>
               <Text style={styles.postComment}>View comments</Text>
             </TouchableOpacity>
-
             <SubmitReaction
               onReactionSelect={handlePostReaction}
               user_post_id={item.user_post_id}
               selectedReaction={reactions[item.user_post_id] || null}
             />
+          </View>
+          <View style={styles.emojiResults}>
+            {renderEmojiCount(item.post_like)}
+            {renderEmojiCount(item.post_love)}
+            {renderEmojiCount(item.post_laugh)}
+            {renderEmojiCount(item.post_sad)}
+            {renderEmojiCount(item.post_anger)}
           </View>
         </View>
       )
@@ -393,25 +438,25 @@ const LiveFeed = () => {
               console.log('Image loading error:', error.nativeEvent.error)
             }
           />
-          {
-            <PostReactionCount
-              user_post_id={item.user_post_id}
-              counts={reactions[item.user_post_id] || {}}
-              onReactionSelect={handlePostReaction}
-              selectedReaction={reactions[item.user_post_id] || null}
-            />
-          }
+          {}
           <View style={styles.reactionContainer}>
             <TouchableOpacity onPress={() => openImage(item)}>
               <Text style={styles.postComment}>View comments</Text>
             </TouchableOpacity>
             {
               <SubmitReaction
-                onReactionSelect={handlePostReaction}
-                user_post_id={item.user_post_id}
-                selectedReaction={reactions[item.user_post_id] || null}
+                onReactionSelect={handleImageReaction}
+                user_image_id={item.user_image_id}
+                selectedReaction={reactions[item.user_image_id] || null}
               />
             }
+          </View>
+          <View style={styles.emojiResults}>
+            {renderEmojiCount(item.post_like)}
+            {renderEmojiCount(item.post_love)}
+            {renderEmojiCount(item.post_laugh)}
+            {renderEmojiCount(item.post_sad)}
+            {renderEmojiCount(item.post_anger)}
           </View>
         </View>
       )
@@ -769,6 +814,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     borderColor: 'deepskyblue',
+  },
+  emojiResultsContainer: {
+    marginLeft: 15,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderRadius: 9,
+    borderColor: 'deepskyblue',
+    padding: 2,
+  },
+  emojiResults: {
+    flexDirection: 'row',
+    marginTop: 5,
+    marginLeft: 130,
+  },
+  noEmojiResult: {
+    borderColor: 'white',
   },
 })
 
