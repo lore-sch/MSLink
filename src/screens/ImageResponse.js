@@ -1,5 +1,4 @@
-//post comments on user posts and status
-
+//Comments on images
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import {
   View,
@@ -24,6 +23,7 @@ const ImageResponse = ({
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
 
+  //api call for existing comments on images
   const fetchImageComments = useCallback(async () => {
     try {
       let apiUrl = 'http://localhost:3000/ImageResponse' // Default API URL for iOS
@@ -43,7 +43,7 @@ const ImageResponse = ({
     }
   }, [imagePost])
 
-  //to post comments to existing comments on status
+  //to post comments to existing comments on images
   const addComment = async () => {
     try {
       let apiUrl = 'http://localhost:3000/ImageResponse' // Default API URL for iOS
@@ -79,7 +79,7 @@ const ImageResponse = ({
   }
 
   useEffect(() => {
-    fetchImageComments() // Fetch comments when the component mounts
+    fetchImageComments() // Fetch comments when the component mounts and image accessed
   }, [fetchImageComments])
 
   return (
@@ -103,10 +103,9 @@ const ImageResponse = ({
         />
       </View>
 
-      {/* Add comment input */}
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder='Write comment...'
+          placeholder="Write comment..."
           onChangeText={setComment}
           value={comment}
           style={styles.textInput}

@@ -7,11 +7,12 @@ export const AuthProvider = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false)
   const [userId, setUserId] = useState(null) // Initialize user_id as null
 
+  //logout function when user not authenticated
   const logout = () => {
     setAuthenticated(false)
     setUserId(null)
   }
-
+//returns authenticated status and user id 
   return (
     <AuthContext.Provider
       value={{ authenticated, setAuthenticated, userId, setUserId, logout }}

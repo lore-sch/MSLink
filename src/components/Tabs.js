@@ -1,3 +1,4 @@
+//Displays bottom tab bar in app when user is authenticated
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useContext } from 'react'
 import ProfileEditPage from '../screens/ProfileEditPage'
@@ -13,6 +14,7 @@ const Tab = createBottomTabNavigator()
 
 const Tabs = () => {
   const { userId } = useContext(AuthContext)
+  //returns profile, discussion and live feed tabs- colour changes when tab active
   return (
     <Tab.Navigator
       screenOptions={{

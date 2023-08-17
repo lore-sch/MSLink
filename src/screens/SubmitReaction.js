@@ -26,6 +26,7 @@ const SubmitReaction = ({
 
   const handleEmojiClick = async (emojiIdentifier) => {
     setSelectedEmoji(emojiIdentifier)
+    console.log('Submitting reaction for user_post_id:', user_post_id);
    
     if (user_post_id) {
       onReactionSelect(user_post_id, emojiIdentifier)
@@ -46,6 +47,7 @@ const SubmitReaction = ({
       }
     } else {
       onReactionSelect(user_image_id, emojiIdentifier)
+      console.log('Submitting reaction for user_image_id:', user_image_id);
       try {
         // Determine the API URL based on the platform (Android or iOS)
         let apiUrl = 'http://localhost:3000' // Default API URL for iOS

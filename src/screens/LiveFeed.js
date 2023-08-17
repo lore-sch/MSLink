@@ -1,4 +1,4 @@
-// LiveFeed- shows the posts from users
+// LiveFeed- shows the posts, polls, images from users
 import React, { useState, useEffect, useContext } from 'react'
 import {
   View,
@@ -19,7 +19,6 @@ import axios from 'axios'
 import PostResponse from './PostResponse'
 import ImageResponse from './ImageResponse'
 import SubmitReaction from './SubmitReaction'
-//import PostReactionCount from './PostReactionCount'
 import UserPoll from './UserPoll'
 import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
@@ -39,8 +38,8 @@ const LiveFeed = () => {
   const [votingStatus, setVotingStatus] = useState({})
   const { userId } = useContext(AuthContext)
 
-  //TO DOL: Set up individual component for android/ios route
-
+  //TO DO: Set up individual component for android/ios route
+  //fetch images, posts and polls from users
   const fetchPosts = async () => {
     let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
 
@@ -76,7 +75,20 @@ const LiveFeed = () => {
           }
         }
 
-        return post
+        // Handle reactions here
+        const reactions = {
+          post_like: post.post_like,
+          post_love: post.post_love,
+          post_laugh: post.post_laugh,
+          post_sad: post.post_sad,
+          post_anger: post.post_anger,
+        }
+
+        // Return a new object with the updated reactions
+        return {
+          ...post,
+          reactions: reactions,
+        }
       })
 
       setPosts(updatedPosts)
@@ -84,6 +96,7 @@ const LiveFeed = () => {
       console.error('Error fetching posts:', error)
     }
   }
+  //fetch comments on user posts- CHECK DUPLICATE CODE?
   const fetchComments = async (userPostId) => {
     let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
 
@@ -127,7 +140,7 @@ const LiveFeed = () => {
       console.error('Error fetching comments:', error)
     }
   }
-
+  //fetches reults of polls to display
   const fetchPollResults = async (user_poll_id) => {
     let apiUrl = 'http://localhost:3000/pollResults' // Default API URL for iOS
 
@@ -154,6 +167,7 @@ const LiveFeed = () => {
     }
   }
 
+  //Check if user has voted, to avoid them voting twice- ERROR
   const fetchUserVotingStatus = async (user_poll_id, user_id) => {
     let apiUrl = 'http://localhost:3000/PollResults' // Default API URL for iOS
 
@@ -187,6 +201,7 @@ const LiveFeed = () => {
     setEnteredPost(enteredPost)
   }
 
+  //handles new posts by users
   const postButtonHandler = async () => {
     let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
 
@@ -223,11 +238,13 @@ const LiveFeed = () => {
     }
   }
 
+  //open post function to view comments
   const openPost = (post) => {
     setSelectedPost(post)
     fetchComments(post.user_post_id)
   }
 
+  //open image function to view comments
   const openImage = (post) => {
     setSelectedPost({
       ...post,
@@ -237,15 +254,19 @@ const LiveFeed = () => {
     fetchCommentsOnImage(post.user_image_id)
   }
 
+  //close post or image in view comments state to go back to live feed
   const closePost = () => {
     setSelectedPost(null)
     setComments([])
   }
 
+  //modal for camera
   const toggleCameraModal = () => {
     setCameraModalVisible(!isCameraModalVisible)
   }
 
+  //uses image picker to choose photo from phone library
+  //api post as form data
   const choosePhotoFromLibrary = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -256,9 +277,6 @@ const LiveFeed = () => {
       })
 
       if (!result.canceled) {
-        // Use the selected image here, you may want to upload it to your server or store the path
-        console.log('Selected Image URI:', result.uri)
-
         let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
 
         if (Platform.OS === 'android') {
@@ -296,23 +314,26 @@ const LiveFeed = () => {
     }
   }
 
+  //shows modal to create new poll
   const showPollModal = () => {
     setPollModalVisible(true)
   }
 
+  //close poll modal
   const hidePollModal = () => {
     setPollModalVisible(false)
   }
 
+  //api post to handle reactions on user posts
   const handlePostReaction = async (user_post_id, emojiIdentifier) => {
     try {
+      console.log('Submitting post reaction for user_post_id:', user_post_id);
       // Determine the API URL based on the platform (Android or iOS)
       let apiUrl = 'http://localhost:3000' // Default API URL for iOS
       if (Platform.OS === 'android') {
         apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
       }
 
-      // Make an HTTP POST request to the server to submit the reaction
       const response = await axios.post(`${apiUrl}/SubmitReaction`, {
         user_post_id: user_post_id,
         reactionType: emojiIdentifier,
@@ -326,21 +347,20 @@ const LiveFeed = () => {
       console.error('Error submitting reaction:', error)
     }
   }
-
+  //api post to handle reactions on user images
   const handleImageReaction = async (user_image_id, emojiIdentifier) => {
     try {
+      console.log('Submitting image reaction for user_image_id:', user_image_id);
       // Determine the API URL based on the platform (Android or iOS)
       let apiUrl = 'http://localhost:3000' // Default API URL for iOS
       if (Platform.OS === 'android') {
         apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
       }
 
-      // Make an HTTP POST request to the server to submit the reaction
       const response = await axios.post(`${apiUrl}/SubmitImageReaction`, {
         user_image_id: user_image_id,
         reactionType: emojiIdentifier,
       })
-
       const updatedReactionCounts = response.data
 
       // Update the reaction state for the current post
@@ -349,14 +369,18 @@ const LiveFeed = () => {
       console.error('Error submitting reaction:', error)
     }
   }
+
+  //update reactions on posts
   const updatePostReaction = (user_post_id, reactionType) => {
+    console.log('Updating post reaction:', user_post_id, reactionType)
     setReactions((prevReactions) => ({
       ...prevReactions,
       [user_post_id]: reactionType,
     }))
   }
-
+  //update reactions on images
   const updateImageReaction = (user_image_id, reactionType) => {
+    console.log('Updating image reaction:', user_image_id, reactionType);
     setReactions((prevReactions) => ({
       ...prevReactions,
       [user_image_id]: reactionType,
@@ -386,9 +410,9 @@ const LiveFeed = () => {
     } catch (error) {}
   }
 
+  //function to determine output and styling is no reaction or 0
   const renderEmojiCount = (count) => {
     const hasValue = count !== null && count !== 0
-
     return (
       <Text
         style={[

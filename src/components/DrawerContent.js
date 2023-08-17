@@ -1,7 +1,13 @@
+//drawer on left side of app to access logout, about us and report function
 import React, { useContext } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { AuthContext, AuthProvider } from './AuthContext'
+import { createStackNavigator } from '@react-navigation/stack'
+import { NavigationContainer } from '@react-navigation/native'
+import { AuthContext } from './AuthContext'
+import Report from '../screens/Report'
 
+const Stack = createStackNavigator()
+//handles log out route
 const DrawerContent = ({ navigation }) => {
   const { logout } = useContext(AuthContext)
   const handleLogout = () => {
@@ -9,15 +15,15 @@ const DrawerContent = ({ navigation }) => {
     navigation.navigate('home')
   }
 
+  //handles about us
   const handleAboutUs = () => {
     // Implement your "About Us" logic here
     // For example, navigate to an "About Us" screen
     navigation.navigate('AboutUs')
   }
 
+  //handles report functionm
   const handleReport = () => {
-    // Implement your "Report" logic here
-    // For example, navigate to a "Report" screen
     navigation.navigate('Report')
   }
 

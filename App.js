@@ -12,13 +12,18 @@ import { AuthContext, AuthProvider } from './src/components/AuthContext'
 import DrawerContent from './src/components/DrawerContent'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Onboarding from './src/screens/Onboarding'
+import Report from './src/screens/Report'
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator()
 
 const AuthStack = () => (
   <Stack.Navigator>
-    <Stack.Screen name='home' component={HomePage} />
+    <Stack.Screen
+      name='home'
+      component={HomePage}
+      options={{ headerTitle: '' }}
+    />
     <Stack.Screen name='loginModal' component={LogIn} />
     <Stack.Screen name='signupModal' component={SignUp} />
   </Stack.Navigator>
@@ -32,16 +37,15 @@ const App = () => {
     async function checkOnboardingStatus() {
       const completed = await AsyncStorage.getItem('onboardingCompleted')
       if (completed === 'true') {
-        setOnboardingCompleted(false)//change to true
+        setOnboardingCompleted(false) //change to true
       }
     }
     checkOnboardingStatus()
-  }, []) 
-
+  }, [])
 
   useEffect(() => {
     if (onboardingCompleted) {
-      AsyncStorage.setItem('onboardingCompleted', 'false')//change to true
+      AsyncStorage.setItem('onboardingCompleted', 'false') //change to true
     }
   }, [onboardingCompleted]) // Run whenever onboardingCompleted changes
 
@@ -57,7 +61,9 @@ const App = () => {
               name='home'
               component={Tabs}
               initialParams={{ userId }}
+              options={{ headerTitle: '' }}
             />
+            <Drawer.Screen name='Report' component={Report} />
           </Drawer.Navigator>
         ) : (
           <Onboarding onComplete={() => setOnboardingCompleted(true)} />
