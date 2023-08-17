@@ -12,8 +12,15 @@ import {
 } from 'react-native'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
+import { useNavigation } from '@react-navigation/native'
 
-const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
+const PostResponse = ({
+  post,
+  comments,
+  fetchComments,
+  user_post_id,
+  closePost,
+}) => {
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
@@ -76,6 +83,12 @@ const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
     fetchPostComments() // Fetch comments when the component mounts
   }, [fetchPostComments])
 
+  const navigation = useNavigation()
+  const handleReport = () => {
+    closePost()
+    navigation.navigate('Report')
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.postContainer}>
@@ -91,7 +104,6 @@ const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
         />
       </View>
 
-      {/* Add comment input */}
       <View style={styles.inputContainer}>
         <TextInput
           placeholder='Write comment...'
@@ -100,10 +112,17 @@ const PostResponse = ({ post, comments, fetchComments, user_post_id }) => {
           style={styles.textInput}
           multiline={true}
         />
+
         <TouchableOpacity style={styles.button} onPress={addComment}>
           <Text style={styles.buttonText}>Post</Text>
         </TouchableOpacity>
       </View>
+        <Text style={styles.reportPromptText}>
+          Worried about something you see?
+        </Text>
+        <TouchableOpacity onPress={handleReport} style={styles.reportButton}>
+          <Text style={styles.reportButtonText}>Submit Report</Text>
+        </TouchableOpacity>
     </View>
   )
 }
@@ -162,6 +181,22 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  reportPromptText: {
+    marginBottom: 10,
+    fontWeight: 'bold'
+  },
+  reportButton: {
+    marginBottom: 40,
+    backgroundColor: 'blue',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 5,
+    borderWidth: 1,
+  },
+  reportButtonText: {
     color: 'white',
     fontSize: 16,
   },

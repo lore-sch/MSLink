@@ -677,6 +677,7 @@ const LiveFeed = () => {
                   comments={comments}
                   fetchComments={fetchComments}
                   user_post_id={selectedPost.user_post_id}
+                  closePost={closePost}
                 />
               ) : selectedPost.type === 'user_image' ? (
                 <ImageResponse
@@ -684,6 +685,7 @@ const LiveFeed = () => {
                   comments={comments}
                   fetchCommentsOnImage={fetchCommentsOnImage}
                   user_image_id={selectedPost.user_image_id}
+                  closePost={closePost}
                 />
               ) : null}
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
