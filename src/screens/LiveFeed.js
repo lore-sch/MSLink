@@ -126,7 +126,7 @@ const LiveFeed = () => {
       apiUrl = 'http://10.0.2.2:3000/ImageResponse' // Override API URL for Android
     }
 
-    //user_post_id to ensure comments related to clicked on post appear
+    //user_image_id to ensure comments related to clicked on post appear
     try {
       const response = await axios.get(apiUrl, {
         params: {
@@ -327,7 +327,6 @@ const LiveFeed = () => {
   //api post to handle reactions on user posts
   const handlePostReaction = async (user_post_id, emojiIdentifier) => {
     try {
-      console.log('Submitting post reaction for user_post_id:', user_post_id);
       // Determine the API URL based on the platform (Android or iOS)
       let apiUrl = 'http://localhost:3000' // Default API URL for iOS
       if (Platform.OS === 'android') {
@@ -425,7 +424,7 @@ const LiveFeed = () => {
     )
   }
 
-  //redners user profile name and their 'status' or post- also shows reactions count but not working currently- all 0
+  //redners user profile name and their 'status' or post with reactions
   const renderPostItem = ({ item }) => {
     if (item.type === 'user_post') {
       return (

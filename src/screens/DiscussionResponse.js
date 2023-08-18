@@ -13,53 +13,34 @@ import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
 import { useNavigation } from '@react-navigation/native'
 
-const PostResponse = ({
+const DiscussionResponse = ({
   post,
-  comments,
-  fetchComments,
-  user_post_id,
+  discussion_post_id,
   closePost,
+  fetchComments,
+  comments,
 }) => {
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
 
-  const fetchPostComments = useCallback(async () => {
-    try {
-      let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
-
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000/PostResponse' // Override API URL for Android
-      }
-
-      const response = await axios.get(apiUrl, {
-        params: {
-          user_post_id: post.user_post_id,
-        },
-      })
-      setCommentList(response.data)
-    } catch (error) {
-      console.error('Error fetching comments:', error)
-    }
-  }, [post])
-
   //to post comments to existing comments on status
   const addComment = async () => {
     try {
-      let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
+      let apiUrl = 'http://localhost:3000/DiscussionComments' // Default API URL for iOS
 
       if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000/PostResponse' // Override API URL for Android
+        apiUrl = 'http://10.0.2.2:3000/DiscussionComments' // Override API URL for Android
       }
 
       const response = await axios.post(apiUrl, {
-        user_post_id: post.user_post_id,
-        userComment: comment,
+        discussion_post_id: post.discussion_post_id,
+        userComment: comment, 
         user_id: userId,
       })
 
       setComment('')
-      fetchComments(user_post_id)
+      fetchComments()
       setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
     } catch (error) {
       console.error('Error posting:', error)
@@ -67,39 +48,35 @@ const PostResponse = ({
   }
 
   const renderComment = ({ item }) => {
-    if (!item || !item.post_comment_id) {
-      return null // skips rendering if the comment/ the post_comment_id undefined (avoids axios error)
-    }
     return (
       <View style={styles.commentsContainer}>
         <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
-        <Text style={styles.commentText}>{item.post_comment}</Text>
+        <Text style={styles.commentText}>{item.discussion_comment}</Text>
       </View>
-    )
-  }
+    );
+  };
 
   useEffect(() => {
-    fetchPostComments() // Fetch comments when the component mounts
-  }, [fetchPostComments])
+    fetchComments(discussion_post_id) // Fetch comments when the component mounts
+    setCommentList(comments) // Update the commentList with the fetched comments
+  }, [comments, fetchComments, discussion_post_id])
 
   const navigation = useNavigation()
   const handleReport = () => {
     closePost()
     navigation.navigate('Report')
   }
-
   return (
     <View style={styles.container}>
       <View style={styles.postContainer}>
-        <Text style={styles.postUserName}>{post.user_profile_name}</Text>
-        <Text style={styles.postText}>{post.user_post}</Text>
+        <Text style={styles.postText}>{post.discussion_post}</Text>
       </View>
 
       <View style={styles.commentsContainer}>
         <FlatList
-          data={comments}
+          data={commentList}
           renderItem={renderComment}
-          keyExtractor={(item) => item.post_comment_id.toString()}
+          keyExtractor={(item) => item.discussion_comment_id}
         />
       </View>
 
@@ -116,12 +93,12 @@ const PostResponse = ({
           <Text style={styles.buttonText}>Post</Text>
         </TouchableOpacity>
       </View>
-        <Text style={styles.reportPromptText}>
-          Worried about something you see?
-        </Text>
-        <TouchableOpacity onPress={handleReport} style={styles.reportButton}>
-          <Text style={styles.reportButtonText}>Submit Report</Text>
-        </TouchableOpacity>
+      <Text style={styles.reportPromptText}>
+        Worried about something you see?
+      </Text>
+      <TouchableOpacity onPress={handleReport} style={styles.reportButton}>
+        <Text style={styles.reportButtonText}>Submit Report</Text>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -185,7 +162,7 @@ const styles = StyleSheet.create({
   },
   reportPromptText: {
     marginBottom: 10,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   reportButton: {
     marginBottom: 40,
@@ -210,4 +187,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default PostResponse
+export default DiscussionResponse
