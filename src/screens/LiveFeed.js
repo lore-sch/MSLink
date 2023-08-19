@@ -19,11 +19,14 @@ import axios from 'axios'
 import PostResponse from './PostResponse'
 import ImageResponse from './ImageResponse'
 import SubmitReaction from './SubmitReaction'
+import ProfileEditPage from './ProfileEditPage'
 import UserPoll from './UserPoll'
 import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
+import { createStackNavigator } from '@react-navigation/stack'
+import { useNavigation } from '@react-navigation/native'
 
-const LiveFeed = () => {
+const LiveFeed = ({ navigation }) => {
   const [enteredPost, setEnteredPost] = useState('')
   const [posts, setPosts] = useState([])
   const [selectedPost, setSelectedPost] = useState(null)
@@ -349,7 +352,7 @@ const LiveFeed = () => {
   //api post to handle reactions on user images
   const handleImageReaction = async (user_image_id, emojiIdentifier) => {
     try {
-      console.log('Submitting image reaction for user_image_id:', user_image_id);
+      console.log('Submitting image reaction for user_image_id:', user_image_id)
       // Determine the API URL based on the platform (Android or iOS)
       let apiUrl = 'http://localhost:3000' // Default API URL for iOS
       if (Platform.OS === 'android') {
@@ -379,7 +382,7 @@ const LiveFeed = () => {
   }
   //update reactions on images
   const updateImageReaction = (user_image_id, reactionType) => {
-    console.log('Updating image reaction:', user_image_id, reactionType);
+    console.log('Updating image reaction:', user_image_id, reactionType)
     setReactions((prevReactions) => ({
       ...prevReactions,
       [user_image_id]: reactionType,
@@ -426,10 +429,18 @@ const LiveFeed = () => {
 
   //redners user profile name and their 'status' or post with reactions
   const renderPostItem = ({ item }) => {
+    // Get the navigation prop using the useNavigation hook
+    const navigateToUserProfile = () => {
+      navigation.navigate('Profile') // Use the navigation prop directly
+    }
     if (item.type === 'user_post') {
       return (
         <View style={styles.postItemContainer}>
-          <Text style={styles.userName}>{item.user_profile_name}</Text>
+          <TouchableOpacity
+            onPress={() => navigateToUserProfile(item.user_profile_name)}
+          >
+            <Text style={styles.userName}>{item.user_profile_name}</Text>
+          </TouchableOpacity>
           <Text style={styles.postText}>{item.user_post}</Text>
           <View style={styles.reactionContainer}>
             <TouchableOpacity onPress={() => openPost(item)}>

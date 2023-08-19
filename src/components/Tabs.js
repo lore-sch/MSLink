@@ -12,7 +12,7 @@ import { AuthContext } from './AuthContext'
 
 const Tab = createBottomTabNavigator()
 
-const Tabs = () => {
+const Tabs = ({ navigation }) => {
   const { userId } = useContext(AuthContext)
   //returns profile, discussion and live feed tabs- colour changes when tab active
   return (
@@ -34,7 +34,7 @@ const Tabs = () => {
           ),
         }}
       >
-        {() => <ProfileEditPage />}
+        {() => <ProfileEditPage navigation={navigation} />}
       </Tab.Screen>
       <Tab.Screen
         name={'Discussion'}
@@ -51,7 +51,6 @@ const Tabs = () => {
       />
       <Tab.Screen
         name={'Live Feed'}
-        component={LiveFeed}
         options={{
           tabBarIcon: ({ focused }) => (
             <Entypo
@@ -61,7 +60,9 @@ const Tabs = () => {
             />
           ),
         }}
-      />
+      >
+        {() => <LiveFeed navigation={navigation} />}
+      </Tab.Screen>
     </Tab.Navigator>
   )
 }
