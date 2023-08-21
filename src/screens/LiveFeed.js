@@ -637,6 +637,11 @@ const LiveFeed = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TouchableOpacity>
+          <Ionicons name="ios-search" size={24} color="deepskyblue" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
@@ -771,6 +776,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'white',
+  },
+  searchContainer: {
+    marginLeft: 300,
   },
   statusInputContainer: {
     marginTop: 30,

@@ -13,6 +13,8 @@ import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
 import DiscussionResponse from './DiscussionResponse'
 import { Feather } from '@expo/vector-icons'
+import { Ionicons } from '@expo/vector-icons'
+import SearchModal from './SearchModal'
 
 //button styling and set up
 const SquareButton = ({ title, onPress }) => (
@@ -27,6 +29,13 @@ const Discussion = () => {
   const { userId } = useContext(AuthContext)
   const [selectedPost, setSelectedPost] = useState(null)
   const [comments, setComments] = useState([])
+  const [searchModalVisible, setSearchModalVisible] = useState(false)
+  const [searchResults, setSearchResults] = useState(false)
+
+  const clearSearch = () => {
+    fetchDiscussionPosts()
+    setSearchModalVisible(false)
+  }
 
   useEffect(() => {
     fetchDiscussionPosts()
@@ -58,6 +67,27 @@ const Discussion = () => {
       const response = await axios.get(apiUrl)
       const postData = response.data
       setPosts(postData)
+      setSearchResults(false)
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+    }
+  }
+
+  const fetchSearchDiscussionPosts = async (searchTerm = '') => {
+    let apiUrl = 'http://localhost:3000/DiscussionPostSearch' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/DiscussionPostSearch' // Override API URL for Android
+    }
+    try {
+      const response = await axios.get(apiUrl, {
+        params: {
+          searchTerm: searchTerm,
+        },
+      })
+      const postData = response.data
+      setPosts(postData)
+      setSearchResults(true)
     } catch (error) {
       console.error('Error fetching posts:', error)
     }
@@ -101,8 +131,32 @@ const Discussion = () => {
     }
   }
 
+  const openSearchModal = () => {
+    setSearchModalVisible(true)
+  }
+
+  const closeSearchModal = () => {
+    setSearchModalVisible(false)
+  }
+
   return (
     <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TouchableOpacity onPress={openSearchModal}>
+          <Ionicons name="ios-search" size={24} color="deepskyblue" />
+        </TouchableOpacity>
+      </View>
+      <SearchModal
+        fetchSearchDiscussionPosts={fetchSearchDiscussionPosts}
+        openSearchModal={openSearchModal}
+        closeSearchModal={closeSearchModal}
+        searchModalVisible={searchModalVisible}
+      />
+     {searchResults && ( // Show "Clear" button only if search term is not empty
+    <TouchableOpacity style={styles.clearButton} onPress={clearSearch}>
+      <Feather name="x" size={24} color="red" />
+    </TouchableOpacity>
+  )}
       <View style={styles.postItemContainer}>
         <FlatList
           data={posts}
@@ -130,7 +184,7 @@ const Discussion = () => {
                   style={styles.closeButton}
                   onPress={closePost}
                 >
-                  <Feather name='x' size={14} color='red' />
+                  
                 </TouchableOpacity>
               </Modal>
             )
@@ -145,14 +199,14 @@ const Discussion = () => {
           </Text>
           <TextInput
             style={styles.textInput}
-            placeholder='Enter post for discussion'
+            placeholder="Enter post for discussion"
             onChangeText={postHandler}
             multiline={true}
             value={enteredPost}
           />
           <View style={styles.buttonContainer}>
             <SquareButton
-              title='Post Discussion Topic'
+              title="Post Discussion Topic"
               onPress={handleDiscussionPost}
             />
           </View>
@@ -166,12 +220,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
+    backgroundColor: 'white',
+  },
+  searchContainer: {
+    marginLeft: 300,
+    marginTop: 0,
+  },
+  clearButton: {
+    marginLeft: 300,
+    marginTop: 15,
   },
   adminContainer: {
     borderWidth: 1,
     padding: 10,
     borderRadius: 10,
-    marginTop: 300,
+    marginTop: 330,
   },
   inputPrompt: {
     fontSize: 15,
