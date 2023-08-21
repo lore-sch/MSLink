@@ -21,7 +21,7 @@ import { useRoute } from '@react-navigation/native'
 
 //event handlers for editing user name
 //TO DO: Set up image selection and user change image ?? image picker
-const ProfileEditPage = ({ user_profile_id }) => {
+const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
   const { userId } = useContext(AuthContext)
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -73,35 +73,50 @@ const ProfileEditPage = ({ user_profile_id }) => {
     fetchUserProfile()
   }, [userId])
 
-
-
-  const fetchUserProfileByName = async () => {
-    try {
-      let apiUrl = 'http://localhost:3000/ProfileEditPageByUsername'
-
-      const response = await axios.get(apiUrl, {
-        params: {
-          user_profile_id: user_profile_id,
-        },
-      })
-
-      const clickedProfile = response.data
-   
-      setUsername(clickedProfile.user_profile_name)
-      setUserStory(clickedProfile.user_story)
-      setLoading(false)
-    } catch (error) {
-      console.error('Error getting profile', error)
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    if (user_profile_id) {
-      fetchUserProfileByName(user_profile_id)
+    const fetchUserProfile = async () => {
+      if (!user_profile_id) {
+        // Wait until userId is available
+        return
+      }
+      let apiUrl = 'http://localhost:3000/ProfileEditPageByUsername' // Default API URL for iOS
+      if (Platform.OS === 'android') {
+        apiUrl = 'http://10.0.2.2:3000/ProfileEditPageByUsername' // Override API URL for Android
+      }
+
+      try {
+        const response = await axios.get(apiUrl, {
+          params: {
+            user_profile_id: user_profile_id
+          },
+        })
+        const userProfile = response.data
+        setUsername(userProfile.user_profile_name)
+        setUserStory(userProfile.user_story)
+
+        // Check if the user has a profile image
+        if (userProfile.image_path) {
+          const cacheBustingValue = Date.now() // or any random number
+          let absoluteImagePath = `http://localhost:3000/${userProfile.image_path}?v=${cacheBustingValue}`
+          if (Platform.OS === 'android') {
+            absoluteImagePath = `http://10.0.2.2:3000/${userProfile.image_path}?v=${cacheBustingValue}` // Override API URL for Android
+          }
+          setImage(absoluteImagePath) // Set the absolute image path in the image state to display the profile picture
+          setLoading(false)
+        } else {
+          console.log('User does not have a profile image.')
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('Error getting profile', error)
+        setLoading(false)
+      }
     }
+
+    fetchUserProfile()
   }, [user_profile_id])
 
+  //handle edit profile
   const handleEditProfile = () => {
     setIsEditing(true)
   }
@@ -200,7 +215,7 @@ const ProfileEditPage = ({ user_profile_id }) => {
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator size='large' color='#17b4ac' /> // Render the loading indicator
+        <ActivityIndicator size="large" color="#17b4ac" /> // Render the loading indicator
       ) : (
         // Render the profile picture once the data is fetched and loading is false
         <View style={styles.profilePictureContainer}>
@@ -220,13 +235,13 @@ const ProfileEditPage = ({ user_profile_id }) => {
       )}
       {isEditing && (
         <TouchableOpacity style={styles.cameraIcon} onPress={toggleCameraModal}>
-          <Feather name='camera' size={18} color='white' />
+          <Feather name="camera" size={18} color="white" />
         </TouchableOpacity>
       )}
       {isEditing ? (
         <TextInput
           style={styles.editUsername}
-          placeholder='User name'
+          placeholder="User name"
           value={username}
           onChangeText={handleChangeUsername}
         />
@@ -249,27 +264,32 @@ const ProfileEditPage = ({ user_profile_id }) => {
             style={styles.editButton}
             onPress={handleSaveProfile}
           >
-            <Feather name='check' size={20} color='white' />
+            <Feather name="check" size={20} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.editButton}
             onPress={handleCancelEdit}
           >
-            <Feather name='x' size={20} color='white' />
+            <Feather name="x" size={20} color="white" />
           </TouchableOpacity>
         </View>
       ) : (
+        <View style={styles.editButtonProfile}>
+          {!hideEditButton && (
         <View style={styles.editButtonProfile}>
           <TouchableOpacity
             style={styles.editButton}
             onPress={handleEditProfile}
           >
-            <Feather name='edit' size={20} color='white' />
+            <Feather name="edit" size={20} color="white" />
           </TouchableOpacity>
         </View>
       )}
+
+        </View>
+      )}
       <Modal
-        animationType='slide'
+        animationType="slide"
         transparent={true}
         visible={isCameraModalVisible}
         onRequestClose={() => setCameraModalVisible(false)}

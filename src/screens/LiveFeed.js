@@ -24,7 +24,9 @@ import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
 import { createStackNavigator } from '@react-navigation/stack'
 import { useNavigation } from '@react-navigation/native'
-import ProfileView from './ProfileView'
+//import ProfileView from './ProfileView'
+import ProfileEditModal from './ProfileEditModal'
+import ProfileEditPage from './ProfileEditPage'
 
 const LiveFeed = ({ navigation }) => {
   const [enteredPost, setEnteredPost] = useState('')
@@ -475,7 +477,7 @@ const LiveFeed = ({ navigation }) => {
             {renderEmojiCount(item.post_sad)}
             {renderEmojiCount(item.post_anger)}
           </View>
-          <ProfileView
+          <ProfileEditModal
             user_profile_id={item.user_profile_id}
             visible={isProfileModalVisible}
             onClose={() => closeModal(item.user_profile_id)}
@@ -519,7 +521,7 @@ const LiveFeed = ({ navigation }) => {
             {renderEmojiCount(item.post_sad)}
             {renderEmojiCount(item.post_anger)}
           </View>
-          <ProfileView
+          <ProfileEditModal
             user_profile_id={item.user_profile_id}
             visible={isProfileModalVisible}
             onClose={() => closeModal(item.user_profile_id)}
@@ -571,7 +573,7 @@ const LiveFeed = ({ navigation }) => {
                   }
                 </Text>
               </View>
-              <ProfileView
+              <ProfileEditModal
                 user_profile_id={item.user_profile_id}
                 visible={isProfileModalVisible}
                 onClose={() => closeModal(item.user_profile_id)}
@@ -623,7 +625,7 @@ const LiveFeed = ({ navigation }) => {
               </TouchableOpacity>
             </View>
           )}
-          <ProfileView
+          <ProfileEditModal
             user_profile_id={item.user_profile_id}
             visible={isProfileModalVisible}
             onClose={() => closeModal(item.user_profile_id)}
@@ -768,6 +770,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'white',
   },
   statusInputContainer: {
     marginTop: 30,
