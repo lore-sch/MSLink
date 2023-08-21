@@ -17,10 +17,11 @@ import Story from './Story'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
+import { useRoute } from '@react-navigation/native'
 
 //event handlers for editing user name
 //TO DO: Set up image selection and user change image ?? image picker
-const ProfileEditPage = () => {
+const ProfileEditPage = ({ user_profile_id }) => {
   const { userId } = useContext(AuthContext)
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -41,7 +42,6 @@ const ProfileEditPage = () => {
       }
 
       try {
-    
         const response = await axios.get(apiUrl, {
           params: {
             user_id: userId,
@@ -74,6 +74,33 @@ const ProfileEditPage = () => {
   }, [userId])
 
 
+
+  const fetchUserProfileByName = async () => {
+    try {
+      let apiUrl = 'http://localhost:3000/ProfileEditPageByUsername'
+
+      const response = await axios.get(apiUrl, {
+        params: {
+          user_profile_id: user_profile_id,
+        },
+      })
+
+      const clickedProfile = response.data
+   
+      setUsername(clickedProfile.user_profile_name)
+      setUserStory(clickedProfile.user_story)
+      setLoading(false)
+    } catch (error) {
+      console.error('Error getting profile', error)
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (user_profile_id) {
+      fetchUserProfileByName(user_profile_id)
+    }
+  }, [user_profile_id])
 
   const handleEditProfile = () => {
     setIsEditing(true)
@@ -111,8 +138,7 @@ const ProfileEditPage = () => {
     }
   }
 
-  useEffect(() => {
-  }, [image])
+  useEffect(() => {}, [image])
 
   const choosePhotoFromLibrary = async () => {
     let _image = await ImagePicker.launchImageLibraryAsync({
@@ -124,7 +150,6 @@ const ProfileEditPage = () => {
 
     if (!_image.canceled) {
       const selectedAsset = _image.assets[0] // Access the selected asset from the "assets" array
-
 
       // Check if the selected image is different from the current image state
       if (selectedAsset.uri !== image) {

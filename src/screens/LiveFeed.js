@@ -19,12 +19,12 @@ import axios from 'axios'
 import PostResponse from './PostResponse'
 import ImageResponse from './ImageResponse'
 import SubmitReaction from './SubmitReaction'
-import ProfileEditPage from './ProfileEditPage'
 import UserPoll from './UserPoll'
 import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
 import { createStackNavigator } from '@react-navigation/stack'
 import { useNavigation } from '@react-navigation/native'
+import ProfileView from './ProfileView'
 
 const LiveFeed = ({ navigation }) => {
   const [enteredPost, setEnteredPost] = useState('')
@@ -40,6 +40,9 @@ const LiveFeed = ({ navigation }) => {
   const [hasVoted, setHasVoted] = useState(false)
   const [votingStatus, setVotingStatus] = useState({})
   const { userId } = useContext(AuthContext)
+  const [user_profile_id, setUserProfileId] = useState(null)
+  const [modalVisible, setModalVisible] = useState(false)
+  const [profileModalVisibility, setProfileModalVisibility] = useState({})
 
   //TO DO: Set up individual component for android/ios route
   //fetch images, posts and polls from users
@@ -427,17 +430,29 @@ const LiveFeed = ({ navigation }) => {
     )
   }
 
+  const openProfileModal = (user_profile_id) => {
+    setProfileModalVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [user_profile_id]: true,
+    }))
+  }
+
+  const closeModal = (user_profile_id) => {
+    setProfileModalVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [user_profile_id]: false,
+    }))
+  }
+
   //redners user profile name and their 'status' or post with reactions
   const renderPostItem = ({ item }) => {
-    // Get the navigation prop using the useNavigation hook
-    const navigateToUserProfile = () => {
-      navigation.navigate('Profile') // Use the navigation prop directly
-    }
     if (item.type === 'user_post') {
+      const isProfileModalVisible =
+        profileModalVisibility[item.user_profile_id] || false
       return (
-        <View style={styles.postItemContainer}>
+        <View key={item.user_post_id} style={styles.postItemContainer}>
           <TouchableOpacity
-            onPress={() => navigateToUserProfile(item.user_profile_name)}
+            onPress={() => openProfileModal(item.user_profile_id)}
           >
             <Text style={styles.userName}>{item.user_profile_name}</Text>
           </TouchableOpacity>
@@ -446,6 +461,7 @@ const LiveFeed = ({ navigation }) => {
             <TouchableOpacity onPress={() => openPost(item)}>
               <Text style={styles.postComment}>View comments</Text>
             </TouchableOpacity>
+
             <SubmitReaction
               onReactionSelect={handlePostReaction}
               user_post_id={item.user_post_id}
@@ -459,12 +475,23 @@ const LiveFeed = ({ navigation }) => {
             {renderEmojiCount(item.post_sad)}
             {renderEmojiCount(item.post_anger)}
           </View>
+          <ProfileView
+            user_profile_id={item.user_profile_id}
+            visible={isProfileModalVisible}
+            onClose={() => closeModal(item.user_profile_id)}
+          />
         </View>
       )
     } else if (item.type === 'user_image') {
+      const isProfileModalVisible =
+        profileModalVisibility[item.user_profile_id] || false
       return (
-        <View style={styles.postItemContainer}>
-          <Text style={styles.userName}>{item.user_profile_name}</Text>
+        <View key={item.user_post_id} style={styles.postItemContainer}>
+          <TouchableOpacity
+            onPress={() => openProfileModal(item.user_profile_id)}
+          >
+            <Text style={styles.userName}>{item.user_profile_name}</Text>
+          </TouchableOpacity>
           <Image
             source={{ uri: item.image_path }}
             style={styles.image}
@@ -492,16 +519,26 @@ const LiveFeed = ({ navigation }) => {
             {renderEmojiCount(item.post_sad)}
             {renderEmojiCount(item.post_anger)}
           </View>
+          <ProfileView
+            user_profile_id={item.user_profile_id}
+            visible={isProfileModalVisible}
+            onClose={() => closeModal(item.user_profile_id)}
+          />
         </View>
       )
       //will render results it vote cast
     } else if (item.type === 'user_poll') {
       const showResults = pollResultsData && pollResultsData[item.user_poll_id]
       const hasVoted = votingStatus[item.user_poll_id] // Get hasVoted for the specific poll item
-
+      const isProfileModalVisible =
+        profileModalVisibility[item.user_profile_id] || false
       return (
-        <View style={styles.postItemContainer}>
-          <Text style={styles.userName}>{item.user_profile_name}</Text>
+        <View key={item.user_post_id} style={styles.postItemContainer}>
+          <TouchableOpacity
+            onPress={() => openProfileModal(item.user_profile_id)}
+          >
+            <Text style={styles.userName}>{item.user_profile_name}</Text>
+          </TouchableOpacity>
           <Text style={styles.pollQuestion}>{item.user_poll_question}</Text>
 
           {hasVoted ? ( // Conditionally render based on the hasVoted flag
@@ -534,6 +571,11 @@ const LiveFeed = ({ navigation }) => {
                   }
                 </Text>
               </View>
+              <ProfileView
+                user_profile_id={item.user_profile_id}
+                visible={isProfileModalVisible}
+                onClose={() => closeModal(item.user_profile_id)}
+              />
             </View>
           ) : (
             // Render voting options if the user hasn't voted yet
@@ -581,6 +623,11 @@ const LiveFeed = ({ navigation }) => {
               </TouchableOpacity>
             </View>
           )}
+          <ProfileView
+            user_profile_id={item.user_profile_id}
+            visible={isProfileModalVisible}
+            onClose={() => closeModal(item.user_profile_id)}
+          />
         </View>
       )
     }
@@ -591,7 +638,7 @@ const LiveFeed = ({ navigation }) => {
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder='Share with us...'
+          placeholder="Share with us..."
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
@@ -599,17 +646,17 @@ const LiveFeed = ({ navigation }) => {
       </View>
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
+        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
         <TouchableOpacity
           style={styles.optionText}
           onPress={() => setCameraModalVisible(true)}
         >
           <Text style={styles.optionText}>Photo</Text>
-          <FontAwesome name='photo' size={20} color='deepskyblue' />
+          <FontAwesome name="photo" size={20} color="deepskyblue" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.optionText} onPress={showPollModal}>
           <Text style={styles.optionText}>Poll</Text>
-          <AntDesign name='barschart' size={20} color='deepskyblue' />
+          <AntDesign name="barschart" size={20} color="deepskyblue" />
         </TouchableOpacity>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
@@ -617,7 +664,7 @@ const LiveFeed = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <Modal
-          animationType='slide'
+          animationType="slide"
           transparent={true}
           visible={isCameraModalVisible}
           onRequestClose={() => setCameraModalVisible(false)}
@@ -653,7 +700,7 @@ const LiveFeed = ({ navigation }) => {
           </View>
         </Modal>
         <Modal
-          animationType='slide'
+          animationType="slide"
           transparent={true}
           visible={isPollModalVisible}
           onRequestClose={hidePollModal}
@@ -699,7 +746,7 @@ const LiveFeed = ({ navigation }) => {
                 />
               ) : null}
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-                <Feather name='x' size={14} color='white' />
+                <Feather name="x" size={14} color="white" />
               </TouchableOpacity>
             </Modal>
           )

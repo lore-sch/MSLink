@@ -17,6 +17,7 @@ import Report from './src/screens/Report'
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator()
 
+
 const AuthStack = () => (
   <Stack.Navigator>
     <Stack.Screen
