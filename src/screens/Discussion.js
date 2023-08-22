@@ -72,7 +72,7 @@ const Discussion = () => {
       console.error('Error fetching posts:', error)
     }
   }
-
+  //fetches posts for outcome of search criteria
   const fetchSearchDiscussionPosts = async (searchTerm = '') => {
     let apiUrl = 'http://localhost:3000/DiscussionPostSearch' // Default API URL for iOS
 
@@ -147,16 +147,17 @@ const Discussion = () => {
         </TouchableOpacity>
       </View>
       <SearchModal
-        fetchSearchDiscussionPosts={fetchSearchDiscussionPosts}
+        fetchSearchResults={fetchSearchDiscussionPosts}
         openSearchModal={openSearchModal}
         closeSearchModal={closeSearchModal}
         searchModalVisible={searchModalVisible}
+        placeholderText={'Search for discussions...'}
       />
-     {searchResults && ( // Show "Clear" button only if search term is not empty
-    <TouchableOpacity style={styles.clearButton} onPress={clearSearch}>
-      <Feather name="x" size={24} color="red" />
-    </TouchableOpacity>
-  )}
+      {searchResults && ( // Show "Clear" button only if search term is not empty
+        <TouchableOpacity style={styles.clearButton} onPress={clearSearch}>
+          <Feather name="x" size={24} color="red" />
+        </TouchableOpacity>
+      )}
       <View style={styles.postItemContainer}>
         <FlatList
           data={posts}
@@ -179,13 +180,10 @@ const Discussion = () => {
                   discussion_post_id={selectedPost.discussion_post_id}
                   closePost={closePost}
                 />
-
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={closePost}
-                >
-                  
-                </TouchableOpacity>
+                />
               </Modal>
             )
           }

@@ -8,13 +8,13 @@ import {
   TextInput,
 } from 'react-native'
 import { useState } from 'react'
-import { SearchBar } from 'react-native-search-bar'
 
 const SearchModal = ({
-  fetchSearchDiscussionPosts,
   openSearchModal,
   closeSearchModal,
   searchModalVisible,
+  placeholderText,
+  fetchSearchResults,
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -27,14 +27,14 @@ const SearchModal = ({
       <View style={styles.searchModalContainer}>
         <TextInput
           style={styles.searchTextInput}
-          placeholder="Search for a discussion topic"
-          onChangeText={setSearchTerm} // Make sure this line is present
+          placeholder={placeholderText}
+          onChangeText={setSearchTerm}
           value={searchTerm}
         />
         <TouchableOpacity
           style={styles.searchButton}
           onPress={() => {
-            fetchSearchDiscussionPosts(searchTerm)
+            fetchSearchResults(searchTerm)
             closeSearchModal()
             setSearchTerm('')
           }}

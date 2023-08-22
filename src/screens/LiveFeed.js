@@ -24,9 +24,8 @@ import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
 import { createStackNavigator } from '@react-navigation/stack'
 import { useNavigation } from '@react-navigation/native'
-//import ProfileView from './ProfileView'
 import ProfileEditModal from './ProfileEditModal'
-import ProfileEditPage from './ProfileEditPage'
+import SearchModal from './SearchModal'
 
 const LiveFeed = ({ navigation }) => {
   const [enteredPost, setEnteredPost] = useState('')
@@ -45,6 +44,8 @@ const LiveFeed = ({ navigation }) => {
   const [user_profile_id, setUserProfileId] = useState(null)
   const [modalVisible, setModalVisible] = useState(false)
   const [profileModalVisibility, setProfileModalVisibility] = useState({})
+  const [searchResults, setSearchResults] = useState(false)
+  const [searchModalVisible, setSearchModalVisible] = useState(false)
 
   //TO DO: Set up individual component for android/ios route
   //fetch images, posts and polls from users
@@ -100,10 +101,45 @@ const LiveFeed = ({ navigation }) => {
       })
 
       setPosts(updatedPosts)
+      setSearchResults(false)
     } catch (error) {
       console.error('Error fetching posts:', error)
     }
   }
+
+  const fetchLiveFeedSearch = async (searchTerm = '') => {
+    let apiUrl = 'http://localhost:3000/LiveFeedSearch' // Default API URL for iOS
+
+    if (Platform.OS === 'android') {
+      apiUrl = 'http://10.0.2.2:3000/LiveFeedSearch' // Override API URL for Android
+    }
+    try {
+      const response = await axios.get(apiUrl, {
+        params: {
+          searchTerm: searchTerm,
+        },
+      })
+      const postData = response.data
+      setPosts(postData)
+      setSearchResults(true)
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+    }
+  }
+
+  const clearSearch = () => {
+    fetchPosts()
+    setSearchModalVisible(false)
+  }
+
+  const closeSearchModal = () => {
+    setSearchModalVisible(false)
+  }
+
+  const openSearchModal = () => {
+    setSearchModalVisible(true)
+  }
+
   //fetch comments on user posts- CHECK DUPLICATE CODE?
   const fetchComments = async (userPostId) => {
     let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
@@ -463,7 +499,6 @@ const LiveFeed = ({ navigation }) => {
             <TouchableOpacity onPress={() => openPost(item)}>
               <Text style={styles.postComment}>View comments</Text>
             </TouchableOpacity>
-
             <SubmitReaction
               onReactionSelect={handlePostReaction}
               user_post_id={item.user_post_id}
@@ -542,7 +577,6 @@ const LiveFeed = ({ navigation }) => {
             <Text style={styles.userName}>{item.user_profile_name}</Text>
           </TouchableOpacity>
           <Text style={styles.pollQuestion}>{item.user_poll_question}</Text>
-
           {hasVoted ? ( // Conditionally render based on the hasVoted flag
             // Render the poll results if the user has voted
             <View>
@@ -638,10 +672,23 @@ const LiveFeed = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={openSearchModal}>
           <Ionicons name="ios-search" size={24} color="deepskyblue" />
         </TouchableOpacity>
       </View>
+      <SearchModal
+        fetchLiveFeedSearch={fetchLiveFeedSearch}
+        openSearchModal={openSearchModal}
+        closeSearchModal={closeSearchModal}
+        searchModalVisible={searchModalVisible}
+        fetchSearchResults={fetchLiveFeedSearch}
+        placeholderText={'Search for posts...'}
+      />
+      {searchResults && ( // Show "Clear" button only if search term is not empty
+        <TouchableOpacity style={styles.clearButton} onPress={clearSearch}>
+          <Feather name="x" size={24} color="red" />
+        </TouchableOpacity>
+      )}
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
@@ -649,6 +696,7 @@ const LiveFeed = ({ navigation }) => {
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
+          
         />
       </View>
       <View style={styles.optionContainer}>
@@ -779,6 +827,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     marginLeft: 300,
+    marginTop: 10,
   },
   statusInputContainer: {
     marginTop: 30,
@@ -925,6 +974,10 @@ const styles = StyleSheet.create({
   noEmojiResult: {
     borderColor: 'white',
   },
+  clearButton: {
+    marginLeft: 300,
+    marginTop: 15,
+  }
 })
 
 export default LiveFeed
