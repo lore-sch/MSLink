@@ -138,7 +138,8 @@ const Discussion = () => {
   const closeSearchModal = () => {
     setSearchModalVisible(false)
   }
-
+  //sets up changing colours for discussion posts
+  const postColors = ['pink', 'blue', 'green']
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -163,7 +164,14 @@ const Discussion = () => {
           data={posts}
           renderItem={({ item }) => (
             <View style={styles.postItem}>
-              <Text>{item.discussion_post}</Text>
+              <View
+                style={{
+                  ...styles.discussionPost,
+                  backgroundColor: postColors[item.discussion_post_id % postColors.length], // Use item.index
+                }}
+              >
+                <Text style={styles.discussionText}>{item.discussion_post}</Text>
+              </View>
               <TouchableOpacity onPress={() => openPost(item)}>
                 <Text style={styles.postComment}>View comments</Text>
               </TouchableOpacity>
@@ -232,7 +240,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 10,
-    marginTop: 330,
   },
   inputPrompt: {
     fontSize: 15,
@@ -266,12 +273,10 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   postItemContainer: {
-    marginTop: 50,
+    marginTop: 20,
     marginLeft: 20,
     marginRight: 20,
     width: 350,
-    borderBottomWidth: 0.5,
-    borderColor: '#aebdbf',
   },
   closeButton: {
     position: 'absolute',
@@ -285,5 +290,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  postComment: {
+    fontSize: 16,
+    color: 'deepskyblue',
+    paddingTop: 20,
+  },
+  postItem: {
+    borderBottomWidth: 0.5,
+    borderColor: '#aebdbf',
+    marginBottom: 30,
+    color: 'white',
+  },
+  discussionPost: {
+    padding: 60,
+    borderRadius: 20,
+  },
+  discussionText: {
+    color: 'white',
+    fontSize: 16,
+  }
 })
 export default Discussion
