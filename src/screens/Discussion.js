@@ -308,6 +308,6 @@ const styles = StyleSheet.create({
   discussionText: {
     color: 'white',
     fontSize: 16,
-  }
+  },
 })
 export default Discussion
