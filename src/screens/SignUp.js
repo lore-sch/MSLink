@@ -10,8 +10,10 @@ import {
   Modal,
   Platform,
   React,
+  Alert,
 } from 'react-native'
 import axios from 'axios'
+import { validateEmail, validatePassword } from 'react-native-field-validator'
 
 //button styling and set up
 const SquareButton = ({ title, onPress }) => (
@@ -30,7 +32,8 @@ const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
     useState('')
   const [passwordMatchError, setpasswordMatchError] = useState(false)
   const [emailAlreadyExists, setEmailAlreadyExists] = useState(false)
- 
+  const [invalidEmail, setInvalidEmail] = useState(false)
+  const [invalidPassword, setInvalidPassword] = useState(false)
 
   const emailHandler = (enteredEmailAddress) => {
     setEnteredEmailAddress(enteredEmailAddress)
@@ -70,6 +73,15 @@ const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
   const signUpHandler = async () => {
     if (enteredPassword !== enteredPasswordConfirmation) {
       setpasswordMatchError(true)
+      return
+    }
+    if (!validateEmail(enteredEmailAddress)) {
+      Alert.alert('Invalid email address. Please try again.')
+      return
+    }
+
+    if (!validatePassword(enteredPassword)) {
+      setInvalidPassword(true)
       return
     }
     let apiUrl = 'http://localhost:3000/SignUp' // Default API URL for iOS
@@ -122,6 +134,12 @@ const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
           {emailAlreadyExists && (
             <Text style={styles.errorMessage}>
               Email address already exists. Please try again.
+            </Text>
+          )}
+          {invalidPassword && (
+            <Text style={styles.errorMessage}>
+              Password must contain at least 8 characters, one uppercase letter,
+              one lowercase letter, and one digit.
             </Text>
           )}
           <View style={styles.buttonContainer}>

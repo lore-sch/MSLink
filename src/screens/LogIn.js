@@ -9,9 +9,11 @@ import {
   SafeAreaView,
   Modal,
   Platform,
+  React,
 } from 'react-native'
 import { AuthContext, AuthProvider } from '../components/AuthContext'
 import * as SecureStore from 'expo-secure-store'
+import ForgotPassword from './ForgotPassword'
 
 //retrieves the JWT token from secure store for api reqs
 const getAuthToken = async () => {
@@ -38,7 +40,11 @@ const SquareButton = ({ title, onPress }) => (
 const LogIn = ({ showModal, setShowModal }) => {
   const [enteredEmailAddress, setEnteredEmailAddress] = useState('')
   const [enteredPassword, setEnteredPassword] = useState('')
+  const [forgotPasswordModalVisible, setForgotPasswordModalVisible] =
+    useState(false)
   const { authenticated, setAuthenticated, setUserId } = useContext(AuthContext)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState(false)
 
   const emailHandler = (enteredEmailAddress) => {
     setEnteredEmailAddress(enteredEmailAddress)
@@ -46,6 +52,10 @@ const LogIn = ({ showModal, setShowModal }) => {
 
   const passwordHandler = (enteredPassword) => {
     setEnteredPassword(enteredPassword)
+  }
+
+  const openForgotPasswordModal = () => {
+    setForgotPasswordModalVisible(true)
   }
 
   const logInHandler = async () => {
@@ -93,13 +103,13 @@ const LogIn = ({ showModal, setShowModal }) => {
   }
 
   return (
-    <Modal visible={showModal} animationType='slide'>
+    <Modal visible={showModal} animationType="slide">
       <SafeAreaView>
         <View style={styles.inputContainer}>
           <Text style={styles.inputPrompt}> Email address: </Text>
           <TextInput
             style={styles.textInput}
-            placeholder='example@example.co.uk'
+            placeholder="example@example.co.uk"
             onChangeText={emailHandler}
           />
           <Text style={styles.inputPrompt}> Password:</Text>
@@ -109,9 +119,24 @@ const LogIn = ({ showModal, setShowModal }) => {
             secureTextEntry={true}
           />
           <View style={styles.buttonContainer}>
-            <SquareButton title='Log in' onPress={() => logInHandler()} />
-            <SquareButton title='Cancel' onPress={() => setShowModal(false)} />
+            <SquareButton title="Log in" onPress={() => logInHandler()} />
+            <SquareButton title="Cancel" onPress={() => setShowModal(false)} />
           </View>
+          {successMessage ? (
+            <Text style={styles.successMessage}>
+              Password reset request sent. A member of the team will contact you
+              by email to reset your password.
+            </Text>
+          ) : (
+            <TouchableOpacity onPress={openForgotPasswordModal}>
+              <Text style={styles.forgotPassword}>Forgot Password?</Text>
+            </TouchableOpacity>
+          )}
+          <ForgotPassword
+            showPasswordModal={forgotPasswordModalVisible}
+            setShowPasswordModal={setForgotPasswordModalVisible}
+            setSuccessMessage={setSuccessMessage}
+          />
         </View>
       </SafeAreaView>
     </Modal>
@@ -155,6 +180,17 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: 'white',
+  },
+  forgotPassword: {
+    fontSize: 18,
+    color: 'navy',
+    marginTop: 30,
+  },
+  successMessage: {
+    fontSize: 18,
+    color: 'navy',
+    fontWeight: 'bold',
+    marginLeft: 35,
   },
 })
 export default LogIn
