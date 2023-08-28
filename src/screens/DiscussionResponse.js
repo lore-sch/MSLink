@@ -1,5 +1,5 @@
 //post comments on user posts and status
-import React, { useState, useEffect, useCallback, useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import {
   View,
   Text,
@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Platform,
 } from 'react-native'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
 import { useNavigation } from '@react-navigation/native'
+import ApiUtility from '../components/ApiUtility'
+import { Feather } from '@expo/vector-icons'
 
 const DiscussionResponse = ({
   post,
@@ -19,23 +20,20 @@ const DiscussionResponse = ({
   closePost,
   fetchComments,
   comments,
+  backgroundColor,
 }) => {
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
 
+  const apiUrl = ApiUtility()
+
   //to post comments to existing comments on status
   const addComment = async () => {
     try {
-      let apiUrl = 'http://localhost:3000/DiscussionComments' // Default API URL for iOS
-
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000/DiscussionComments' // Override API URL for Android
-      }
-
-      const response = await axios.post(apiUrl, {
+      const response = await axios.post(`${apiUrl}/DiscussionComments`, {
         discussion_post_id: post.discussion_post_id,
-        userComment: comment, 
+        userComment: comment,
         user_id: userId,
       })
 
@@ -46,15 +44,38 @@ const DiscussionResponse = ({
       console.error('Error posting:', error)
     }
   }
+  //api call to delete comment
+  const deleteComment = async (deleteItem) => {
+    try {
+      const response = await axios.post(`${apiUrl}/DeleteDiscussionComment`, {
+        discussion_comment_id: deleteItem.discussion_comment_id,
+        user_id: userId,
+      })
+      fetchComments()
+      setCommentList(commentList.filter((item) => item !== deleteItem))
+    } catch (error) {
+      console.error('Error deleting:', error)
+    }
+  }
 
   const renderComment = ({ item }) => {
+    const currentUserComment = item.user_id === userId
     return (
       <View style={styles.commentsContainer}>
         <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
         <Text style={styles.commentText}>{item.discussion_comment}</Text>
+        {currentUserComment && (
+          <TouchableOpacity
+            onPress={() => deleteComment(item)}
+            style={styles.deleteComment}
+          >
+            <Feather name="x" size={16} color="deepskyblue" />
+            <Text style={styles.deleteCommentText}>Delete</Text>
+          </TouchableOpacity>
+        )}
       </View>
-    );
-  };
+    )
+  }
 
   useEffect(() => {
     fetchComments(discussion_post_id) // Fetch comments when the component mounts
@@ -68,10 +89,11 @@ const DiscussionResponse = ({
   }
   return (
     <View style={styles.container}>
-      <View style={styles.postContainer}>
+    <View style={styles.postContainer}>
+      <View style={{ ...styles.discussionPost, backgroundColor }}>
         <Text style={styles.postText}>{post.discussion_post}</Text>
       </View>
-
+      </View>
       <View style={styles.commentsContainer}>
         <FlatList
           data={commentList}
@@ -82,7 +104,7 @@ const DiscussionResponse = ({
 
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder='Write comment...'
+          placeholder="Write comment..."
           onChangeText={setComment}
           value={comment}
           style={styles.textInput}
@@ -99,6 +121,7 @@ const DiscussionResponse = ({
       <TouchableOpacity onPress={handleReport} style={styles.reportButton}>
         <Text style={styles.reportButtonText}>Submit Report</Text>
       </TouchableOpacity>
+    
     </View>
   )
 }
@@ -148,6 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 10,
     marginBottom: 10,
+    color: 'white',
   },
   button: {
     marginLeft: 10,
@@ -184,6 +208,21 @@ const styles = StyleSheet.create({
     color: 'deepskyblue',
     marginLeft: 20,
     marginRight: 20,
+  },
+  deleteComment: {
+    flexDirection: 'row',
+    paddingLeft: 75,
+  },
+  deleteCommentText: {
+    color: 'deepskyblue',
+  },
+  discussionPost: {
+    padding: 60,
+    borderRadius: 20,
+  },
+  discussionText: {
+    color: 'white',
+    fontSize: 16,
   },
 })
 

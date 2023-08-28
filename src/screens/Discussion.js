@@ -15,7 +15,6 @@ import DiscussionResponse from './DiscussionResponse'
 import { Feather } from '@expo/vector-icons'
 import { Ionicons } from '@expo/vector-icons'
 import SearchModal from './SearchModal'
-
 //button styling and set up
 const SquareButton = ({ title, onPress }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
@@ -167,10 +166,13 @@ const Discussion = () => {
               <View
                 style={{
                   ...styles.discussionPost,
-                  backgroundColor: postColors[item.discussion_post_id % postColors.length], // Use item.index
+                  backgroundColor:
+                    postColors[item.discussion_post_id % postColors.length], // Use item.index
                 }}
               >
-                <Text style={styles.discussionText}>{item.discussion_post}</Text>
+                <Text style={styles.discussionText}>
+                  {item.discussion_post}
+                </Text>
               </View>
               <TouchableOpacity onPress={() => openPost(item)}>
                 <Text style={styles.postComment}>View comments</Text>
@@ -187,11 +189,18 @@ const Discussion = () => {
                   fetchComments={fetchPostComments}
                   discussion_post_id={selectedPost.discussion_post_id}
                   closePost={closePost}
+                  backgroundColor={
+                    postColors[
+                      selectedPost.discussion_post_id % postColors.length
+                    ]
+                  }
                 />
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={closePost}
-                />
+                >
+                  <Feather name="x" size={14} color="white" />
+                </TouchableOpacity>
               </Modal>
             )
           }

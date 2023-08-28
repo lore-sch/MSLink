@@ -14,6 +14,7 @@ import {
 } from 'react-native'
 import axios from 'axios'
 import { validateEmail, validatePassword } from 'react-native-field-validator'
+import ApiUtility from '../components/ApiUtility'
 
 //button styling and set up
 const SquareButton = ({ title, onPress }) => (
@@ -23,8 +24,6 @@ const SquareButton = ({ title, onPress }) => (
 )
 
 //modal to handle entered email address, password
-//TO DO: Verify passwords match- error message displayed, but set min/max length?
-
 const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
   const [enteredEmailAddress, setEnteredEmailAddress] = useState('')
   const [enteredPassword, setEnteredPassword] = useState('')
@@ -47,15 +46,11 @@ const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
     setEnteredPasswordConfirmation(enteredPasswordConfirmation)
   }
 
+  const apiUrl = ApiUtility()
+
   const emailExistsHandler = async () => {
-    let apiUrl = 'http://localhost:3000/SignUp' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/SignUp' // Override API URL for Android
-    }
-
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${apiUrl}/SignUp`, {
         params: {
           user_email: enteredEmailAddress,
         },
@@ -84,13 +79,8 @@ const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
       setInvalidPassword(true)
       return
     }
-    let apiUrl = 'http://localhost:3000/SignUp' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/SignUp' // Override API URL for Android
-    }
     try {
-      const response = await axios.post(apiUrl, {
+      const response = await axios.post(`${apiUrl}/SignUp`, {
         userEmail: enteredEmailAddress,
         userPassword: enteredPasswordConfirmation,
       })

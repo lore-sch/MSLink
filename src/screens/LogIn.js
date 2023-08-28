@@ -8,12 +8,13 @@ import {
   TextInput,
   SafeAreaView,
   Modal,
-  Platform,
   React,
 } from 'react-native'
 import { AuthContext, AuthProvider } from '../components/AuthContext'
 import * as SecureStore from 'expo-secure-store'
 import ForgotPassword from './ForgotPassword'
+import * as Device from 'expo-device'
+import ApiUtility from '../components/ApiUtility'
 
 //retrieves the JWT token from secure store for api reqs
 const getAuthToken = async () => {
@@ -45,6 +46,7 @@ const LogIn = ({ showModal, setShowModal }) => {
   const { authenticated, setAuthenticated, setUserId } = useContext(AuthContext)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [successMessage, setSuccessMessage] = useState(false)
+  const [invalidPassword, setInvalidPassword] = useState(false)
 
   const emailHandler = (enteredEmailAddress) => {
     setEnteredEmailAddress(enteredEmailAddress)
@@ -58,13 +60,11 @@ const LogIn = ({ showModal, setShowModal }) => {
     setForgotPasswordModalVisible(true)
   }
 
+  //uses Api utility for different devices
+  const apiUrl = ApiUtility()
+
   const logInHandler = async () => {
     try {
-      // Determine the API URL based on the platform (Android or iOS)
-      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
-      }
       // api call for login
       const response = await fetch(`${apiUrl}/LogIn`, {
         method: 'POST',
@@ -93,12 +93,10 @@ const LogIn = ({ showModal, setShowModal }) => {
         setUserId(user_id)
         setShowModal(false) // Close the login modal
       } else {
-        console.log('Login failed', response.status)
-        // TO DO: DISPLAY MESSAGE ON SCREEN
+        setInvalidPassword(true)
       }
     } catch (error) {
       console.error('Error logging in', error)
-      // display error message
     }
   }
 
@@ -122,10 +120,14 @@ const LogIn = ({ showModal, setShowModal }) => {
             <SquareButton title="Log in" onPress={() => logInHandler()} />
             <SquareButton title="Cancel" onPress={() => setShowModal(false)} />
           </View>
+          {invalidPassword && (
+            <Text style={styles.errorMessage}>
+              Invalid email address or password. Please try again.
+            </Text>
+          )}
           {successMessage ? (
             <Text style={styles.successMessage}>
-              Password reset request sent. 
-              A member of the team will contact you
+              Password reset request sent. A member of the team will contact you
               by email with a password reset link.
             </Text>
           ) : (
@@ -153,15 +155,17 @@ const styles = StyleSheet.create({
     marginTop: 250,
   },
   inputPrompt: {
-    fontSize: 16,
+    fontSize: 18,
+    marginBottom: -20,
+    color: 'navy',
   },
   textInput: {
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 6,
-    width: '80%',
+    width: '90%',
     padding: 8,
-    margin: 15,
+    margin: 35,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -193,6 +197,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 35,
     lineHeight: 30,
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 18,
   },
 })
 export default LogIn

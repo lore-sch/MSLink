@@ -17,7 +17,8 @@ import Story from './Story'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
 import * as ImagePicker from 'expo-image-picker'
-import { useRoute } from '@react-navigation/native'
+import ApiUtility from '../components/ApiUtility'
+import * as Device from 'expo-device'
 
 //event handlers for editing user name
 //TO DO: Set up image selection and user change image ?? image picker
@@ -25,10 +26,12 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
   const { userId } = useContext(AuthContext)
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [username, setUsername] = useState('Anonymous')
+  const [username, setUsername] = useState('')
   const [userStory, setUserStory] = useState('')
   const [isCameraModalVisible, setCameraModalVisible] = useState(false)
   const [image, setImage] = useState(null)
+
+  const apiUrl = ApiUtility()
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -36,25 +39,21 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
         // Wait until userId is available
         return
       }
-      let apiUrl = 'http://localhost:3000/ProfileEditPage' // Default API URL for iOS
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000/ProfileEditPage' // Override API URL for Android
-      }
-
       try {
-        const response = await axios.get(apiUrl, {
+        const response = await axios.get(`${apiUrl}/ProfileEditPage`, {
           params: {
             user_id: userId,
           },
         })
 
-        // If response.data is empty, set default values
-        const userProfile = response.data 
+        const userProfile = response.data
+        setUsername(userProfile.user_profile_name)
+        setUserStory(userProfile.user_story)
 
         if (userProfile.image_path) {
           const cacheBustingValue = Date.now() // or any random number
           let absoluteImagePath = `http://localhost:3000/${userProfile.image_path}?v=${cacheBustingValue}`
-          if (Platform.OS === 'android') {
+          if (Device.OS === 'android') {
             absoluteImagePath = `http://10.0.2.2:3000/${userProfile.image_path}?v=${cacheBustingValue}` // Override API URL for Android
           }
           setImage(absoluteImagePath) // Set the absolute image path in the image state to display the profile picture
@@ -77,17 +76,16 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
         // Wait until userId is available
         return
       }
-      let apiUrl = 'http://localhost:3000/ProfileEditPageByUsername' // Default API URL for iOS
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000/ProfileEditPageByUsername' // Override API URL for Android
-      }
 
       try {
-        const response = await axios.get(apiUrl, {
-          params: {
-            user_profile_id: user_profile_id,
-          },
-        })
+        const response = await axios.get(
+          `${apiUrl}/ProfileEditPageByUsername`,
+          {
+            params: {
+              user_profile_id: user_profile_id,
+            },
+          }
+        )
         const userProfile = response.data
         setUsername(userProfile.user_profile_name)
         setUserStory(userProfile.user_story)
@@ -96,7 +94,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
         if (userProfile.image_path) {
           const cacheBustingValue = Date.now() // or any random number
           let absoluteImagePath = `http://localhost:3000/${userProfile.image_path}?v=${cacheBustingValue}`
-          if (Platform.OS === 'android') {
+          if (Device.OS === 'android') {
             absoluteImagePath = `http://10.0.2.2:3000/${userProfile.image_path}?v=${cacheBustingValue}` // Override API URL for Android
           }
           setImage(absoluteImagePath) // Set the absolute image path in the image state to display the profile picture
@@ -242,7 +240,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
           onChangeText={handleChangeUsername}
         />
       ) : (
-        <Text style={styles.username}>{username}</Text>
+        <Text style={styles.username}>{username || 'Anonymous'}</Text>
       )}
       <ScrollView
         style={styles.storyContainer}
