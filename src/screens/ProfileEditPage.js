@@ -25,7 +25,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
   const { userId } = useContext(AuthContext)
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [username, setUsername] = useState('')
+  const [username, setUsername] = useState('Anonymous')
   const [userStory, setUserStory] = useState('')
   const [isCameraModalVisible, setCameraModalVisible] = useState(false)
   const [image, setImage] = useState(null)
@@ -47,11 +47,10 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
             user_id: userId,
           },
         })
-        const userProfile = response.data
-        setUsername(userProfile.user_profile_name)
-        setUserStory(userProfile.user_story)
 
-        // Check if the user has a profile image
+        // If response.data is empty, set default values
+        const userProfile = response.data 
+
         if (userProfile.image_path) {
           const cacheBustingValue = Date.now() // or any random number
           let absoluteImagePath = `http://localhost:3000/${userProfile.image_path}?v=${cacheBustingValue}`
@@ -61,7 +60,6 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
           setImage(absoluteImagePath) // Set the absolute image path in the image state to display the profile picture
           setLoading(false)
         } else {
-          console.log('User does not have a profile image.')
           setLoading(false)
         }
       } catch (error) {
@@ -87,7 +85,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
       try {
         const response = await axios.get(apiUrl, {
           params: {
-            user_profile_id: user_profile_id
+            user_profile_id: user_profile_id,
           },
         })
         const userProfile = response.data
@@ -104,7 +102,6 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
           setImage(absoluteImagePath) // Set the absolute image path in the image state to display the profile picture
           setLoading(false)
         } else {
-          console.log('User does not have a profile image.')
           setLoading(false)
         }
       } catch (error) {
@@ -126,7 +123,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
     setIsEditing(false)
   }
 
-  //database needs to update
+  //updates username when edits made
   const handleChangeUsername = (text) => {
     setUsername(text)
   }
@@ -146,7 +143,6 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
 
       if (!result.canceled) {
         console.log('Camera Image URI:', result.uri)
-        // Handle the selected image here
       }
     } catch (error) {
       console.log('Error picking image:', error)
@@ -223,7 +219,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
             <Image source={{ uri: image }} style={styles.profilePicture} />
           ) : (
             <Image
-              source={require('../../assets/avatar.jpeg')} // You can keep a default avatar image
+              source={require('../../assets/anon-avatar.jpeg')} // default image
               style={styles.profilePicture}
               onError={(error) =>
                 console.log('Image error:', error.nativeEvent.error)
@@ -276,16 +272,15 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
       ) : (
         <View style={styles.editButtonProfile}>
           {!hideEditButton && (
-        <View style={styles.editButtonProfile}>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={handleEditProfile}
-          >
-            <Feather name="edit" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
-      )}
-
+            <View style={styles.editButtonProfile}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={handleEditProfile}
+              >
+                <Feather name="edit" size={20} color="white" />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       )}
       <Modal

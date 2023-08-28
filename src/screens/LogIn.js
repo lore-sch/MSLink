@@ -124,8 +124,9 @@ const LogIn = ({ showModal, setShowModal }) => {
           </View>
           {successMessage ? (
             <Text style={styles.successMessage}>
-              Password reset request sent. A member of the team will contact you
-              by email to reset your password.
+              Password reset request sent. 
+              A member of the team will contact you
+              by email with a password reset link.
             </Text>
           ) : (
             <TouchableOpacity onPress={openForgotPasswordModal}>
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: 'deepskyblue',
-    margin: 15,
+    margin: 35,
     width: 100,
     padding: 10,
     justifyContent: 'center',
@@ -191,6 +192,7 @@ const styles = StyleSheet.create({
     color: 'navy',
     fontWeight: 'bold',
     marginLeft: 35,
+    lineHeight: 30,
   },
 })
 export default LogIn
