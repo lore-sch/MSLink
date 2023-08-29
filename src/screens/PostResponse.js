@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Alert
+  Alert,
 } from 'react-native'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
 import { useNavigation } from '@react-navigation/native'
 import { Feather } from '@expo/vector-icons'
 import ApiUtility from '../components/ApiUtility'
+import ProfileEditModal from './ProfileEditModal'
 
 const PostResponse = ({
   post,
@@ -25,6 +26,7 @@ const PostResponse = ({
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
+  const [profileModalVisibility, setProfileModalVisibility] = useState({})
 
   const apiUrl = ApiUtility()
 
@@ -88,14 +90,34 @@ const PostResponse = ({
       { cancelable: true }
     )
   }
+
+  const openProfileModal = (user_profile_id) => {
+    setProfileModalVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [user_profile_id]: true,
+    }))
+  }
+
+  const closeModal = (user_profile_id) => {
+    setProfileModalVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [user_profile_id]: false,
+    }))
+  }
   const renderComment = ({ item }) => {
     const currentUserComment = item.user_id === userId
+    const isProfileModalVisible =
+      profileModalVisibility[item.user_profile_id] || false
     if (!item || !item.post_comment_id) {
       return null // skips rendering if the comment/ the post_comment_id undefined (avoids axios error)
     }
     return (
       <View style={styles.commentsContainer}>
-        <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
+        <TouchableOpacity
+          onPress={() => openProfileModal(item.user_profile_id)}
+        >
+          <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
+        </TouchableOpacity>
         <Text style={styles.commentText}>{item.post_comment}</Text>
         {currentUserComment && (
           <TouchableOpacity
@@ -106,6 +128,11 @@ const PostResponse = ({
             <Text style={styles.deleteCommentText}>Delete</Text>
           </TouchableOpacity>
         )}
+        <ProfileEditModal
+          user_profile_id={item.user_profile_id}
+          visible={isProfileModalVisible}
+          onClose={() => closeModal(item.user_profile_id)}
+        />
       </View>
     )
   }
