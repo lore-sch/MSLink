@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Platform,
+  Alert
 } from 'react-native'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
 import { useNavigation } from '@react-navigation/native'
+import { Feather } from '@expo/vector-icons'
+import ApiUtility from '../components/ApiUtility'
 
 const PostResponse = ({
   post,
@@ -24,15 +26,11 @@ const PostResponse = ({
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
 
+  const apiUrl = ApiUtility()
+
   const fetchPostComments = useCallback(async () => {
     try {
-      let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
-
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000/PostResponse' // Override API URL for Android
-      }
-
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${apiUrl}/PostResponse`, {
         params: {
           user_post_id: post.user_post_id,
         },
@@ -46,13 +44,7 @@ const PostResponse = ({
   //to post comments to existing comments on status
   const addComment = async () => {
     try {
-      let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
-
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000/PostResponse' // Override API URL for Android
-      }
-
-      const response = await axios.post(apiUrl, {
+      const response = await axios.post(`${apiUrl}/PostResponse`, {
         user_post_id: post.user_post_id,
         userComment: comment,
         user_id: userId,
@@ -66,7 +58,38 @@ const PostResponse = ({
     }
   }
 
+  //api call to delete comment
+  const deleteComment = (deleteItem) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this comment?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const response = await axios.post(`${apiUrl}/DeletePostComment`, {
+                post_comment_id: deleteItem.post_comment_id,
+                user_id: userId,
+              })
+              fetchComments(user_post_id)
+              setCommentList(commentList.filter((item) => item !== deleteItem))
+            } catch (error) {
+              console.error('Error deleting:', error)
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
   const renderComment = ({ item }) => {
+    const currentUserComment = item.user_id === userId
     if (!item || !item.post_comment_id) {
       return null // skips rendering if the comment/ the post_comment_id undefined (avoids axios error)
     }
@@ -74,6 +97,15 @@ const PostResponse = ({
       <View style={styles.commentsContainer}>
         <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
         <Text style={styles.commentText}>{item.post_comment}</Text>
+        {currentUserComment && (
+          <TouchableOpacity
+            onPress={() => deleteComment(item)}
+            style={styles.deleteComment}
+          >
+            <Feather name="x" size={16} color="deepskyblue" />
+            <Text style={styles.deleteCommentText}>Delete</Text>
+          </TouchableOpacity>
+        )}
       </View>
     )
   }
@@ -105,7 +137,7 @@ const PostResponse = ({
 
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder='Write comment...'
+          placeholder="Write comment..."
           onChangeText={setComment}
           value={comment}
           style={styles.textInput}
@@ -116,12 +148,12 @@ const PostResponse = ({
           <Text style={styles.buttonText}>Post</Text>
         </TouchableOpacity>
       </View>
-        <Text style={styles.reportPromptText}>
-          Worried about something you see?
-        </Text>
-        <TouchableOpacity onPress={handleReport} style={styles.reportButton}>
-          <Text style={styles.reportButtonText}>Submit Report</Text>
-        </TouchableOpacity>
+      <Text style={styles.reportPromptText}>
+        Worried about something you see?
+      </Text>
+      <TouchableOpacity onPress={handleReport} style={styles.reportButton}>
+        <Text style={styles.reportButtonText}>Submit Report</Text>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -185,7 +217,7 @@ const styles = StyleSheet.create({
   },
   reportPromptText: {
     marginBottom: 10,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   reportButton: {
     marginBottom: 40,
@@ -207,6 +239,13 @@ const styles = StyleSheet.create({
     color: 'deepskyblue',
     marginLeft: 20,
     marginRight: 20,
+  },
+  deleteComment: {
+    flexDirection: 'row',
+    paddingLeft: 75,
+  },
+  deleteCommentText: {
+    color: 'deepskyblue',
   },
 })
 

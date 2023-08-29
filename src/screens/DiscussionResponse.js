@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
+  Alert
 } from 'react-native'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
@@ -45,17 +46,37 @@ const DiscussionResponse = ({
     }
   }
   //api call to delete comment
-  const deleteComment = async (deleteItem) => {
-    try {
-      const response = await axios.post(`${apiUrl}/DeleteDiscussionComment`, {
-        discussion_comment_id: deleteItem.discussion_comment_id,
-        user_id: userId,
-      })
-      fetchComments()
-      setCommentList(commentList.filter((item) => item !== deleteItem))
-    } catch (error) {
-      console.error('Error deleting:', error)
-    }
+  const deleteComment = (deleteItem) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this comment?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const response = await axios.post(
+                `${apiUrl}/DeleteDiscussionComment`,
+                {
+                  discussion_comment_id: deleteItem.discussion_comment_id,
+                  user_id: userId,
+                }
+              )
+              fetchComments()
+              setCommentList(commentList.filter((item) => item !== deleteItem))
+            } catch (error) {
+              console.error('Error deleting:', error)
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    )
   }
 
   const renderComment = ({ item }) => {
@@ -89,10 +110,10 @@ const DiscussionResponse = ({
   }
   return (
     <View style={styles.container}>
-    <View style={styles.postContainer}>
-      <View style={{ ...styles.discussionPost, backgroundColor }}>
-        <Text style={styles.postText}>{post.discussion_post}</Text>
-      </View>
+      <View style={styles.postContainer}>
+        <View style={{ ...styles.discussionPost, backgroundColor }}>
+          <Text style={styles.postText}>{post.discussion_post}</Text>
+        </View>
       </View>
       <View style={styles.commentsContainer}>
         <FlatList
@@ -121,7 +142,6 @@ const DiscussionResponse = ({
       <TouchableOpacity onPress={handleReport} style={styles.reportButton}>
         <Text style={styles.reportButtonText}>Submit Report</Text>
       </TouchableOpacity>
-    
     </View>
   )
 }

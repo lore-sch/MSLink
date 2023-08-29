@@ -1,6 +1,7 @@
 //Displays bottom tab bar in app when user is authenticated
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useContext } from 'react'
+import { StyleSheet } from 'react-native'
 import ProfileEditPage from '../screens/ProfileEditPage'
 import LiveFeed from '../screens/LiveFeed'
 import Discussion from '../screens/Discussion'
@@ -20,14 +21,15 @@ const Tabs = ({ navigation }) => {
       screenOptions={{
         tabBarActiveTintColor: '#17b4ac',
         tabBarInactiveTintColor: 'black',
+        tabBarLabelStyle: { fontSize: 13}
       }}
     >
       <Tab.Screen
-        name='Profile'
+        name="Profile"
         options={{
           tabBarIcon: ({ focused }) => (
             <FontAwesome
-              name='user-circle'
+              name="user-circle"
               size={25}
               color={focused ? '#17b4ac' : 'black'}
             />
@@ -66,5 +68,4 @@ const Tabs = ({ navigation }) => {
     </Tab.Navigator>
   )
 }
-
 export default Tabs

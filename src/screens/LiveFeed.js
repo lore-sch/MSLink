@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 // LiveFeed- shows the posts, polls, images from users
 import React, { useState, useEffect, useContext } from 'react'
 import {
@@ -10,6 +11,7 @@ import {
   Platform,
   Modal,
   Image,
+  Alert,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { Ionicons } from '@expo/vector-icons'
@@ -26,6 +28,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 import { useNavigation } from '@react-navigation/native'
 import ProfileEditModal from './ProfileEditModal'
 import SearchModal from './SearchModal'
+import ApiUtility from '../components/ApiUtility'
 
 const LiveFeed = ({ navigation }) => {
   const [enteredPost, setEnteredPost] = useState('')
@@ -47,17 +50,12 @@ const LiveFeed = ({ navigation }) => {
   const [searchResults, setSearchResults] = useState(false)
   const [searchModalVisible, setSearchModalVisible] = useState(false)
 
-  //TO DO: Set up individual component for android/ios route
+  const apiUrl = ApiUtility()
+
   //fetch images, posts and polls from users
   const fetchPosts = async () => {
-    let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/LiveFeed' // Override API URL for Android
-    }
-
     try {
-      const response = await axios.get(apiUrl)
+      const response = await axios.get(`${apiUrl}/LiveFeed`)
 
       const updatedPosts = response.data.map((post) => {
         if (post.type === 'user_image') {
@@ -107,6 +105,69 @@ const LiveFeed = ({ navigation }) => {
     }
   }
 
+  //api call to delete comment
+  const deletePost = (deleteItem) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this comment?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const response = await axios.post(
+                `${apiUrl}/DeleteLiveFeedPost`,
+                {
+                  user_post_id: deleteItem.user_post_id,
+                  user_id: userId,
+                }
+              )
+              fetchPosts()
+            } catch (error) {
+              console.error('Error deleting:', error)
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
+  // Function to delete user images
+  const deleteUserImage = (deleteItem) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this image?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const response = await axios.post(`${apiUrl}/DeleteUserImage`, {
+                user_image_id: deleteItem.user_image_id,
+                user_id: userId,
+              })
+              fetchPosts() 
+            } catch (error) {
+              console.error('Error deleting image:', error)
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    )
+  }
+
   const fetchLiveFeedSearch = async (searchTerm = '') => {
     let apiUrl = 'http://localhost:3000/LiveFeedSearch' // Default API URL for iOS
 
@@ -139,7 +200,6 @@ const LiveFeed = ({ navigation }) => {
   const openSearchModal = () => {
     setSearchModalVisible(true)
   }
-
   //fetch comments on user posts- CHECK DUPLICATE CODE?
   const fetchComments = async (userPostId) => {
     let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
@@ -482,19 +542,32 @@ const LiveFeed = ({ navigation }) => {
     }))
   }
 
-  //redners user profile name and their 'status' or post with reactions
-  const renderPostItem = ({ item }) => {
+ //redners user profile name and their 'status' or post with reactions
+  const MemoizedUserPost = React.memo(({ item }) => {
+    const currentUserPost = item.user_id === userId
     if (item.type === 'user_post') {
       const isProfileModalVisible =
         profileModalVisibility[item.user_profile_id] || false
       return (
         <View key={item.user_post_id} style={styles.postItemContainer}>
-          <TouchableOpacity
-            onPress={() => openProfileModal(item.user_profile_id)}
-          >
-            <Text style={styles.userName}>{item.user_profile_name}</Text>
-          </TouchableOpacity>
+          <View style={styles.nameAndDeleteDisplay}>
+            <TouchableOpacity
+              onPress={() => openProfileModal(item.user_profile_id)}
+            >
+              <Text style={styles.userName}>{item.user_profile_name}</Text>
+            </TouchableOpacity>
+            {currentUserPost && (
+              <TouchableOpacity
+                onPress={() => deletePost(item)}
+                style={styles.deleteComment}
+              >
+                <Feather name="x" size={16} color="deepskyblue" />
+                <Text style={styles.deleteCommentText}>Delete</Text>
+              </TouchableOpacity>
+            )}
+          </View>
           <Text style={styles.postText}>{item.user_post}</Text>
+
           <View style={styles.reactionContainer}>
             <TouchableOpacity onPress={() => openPost(item)}>
               <Text style={styles.postComment}>View comments</Text>
@@ -519,16 +592,32 @@ const LiveFeed = ({ navigation }) => {
           />
         </View>
       )
-    } else if (item.type === 'user_image') {
+    }
+  })
+
+  const MemoizedUserImage = React.memo(({ item }) => {
+    const currentUserPost = item.user_id === userId
+    if (item.type === 'user_image') {
       const isProfileModalVisible =
         profileModalVisibility[item.user_profile_id] || false
       return (
         <View key={item.user_post_id} style={styles.postItemContainer}>
+          <View style={styles.nameAndDeleteDisplay}>
           <TouchableOpacity
             onPress={() => openProfileModal(item.user_profile_id)}
           >
             <Text style={styles.userName}>{item.user_profile_name}</Text>
           </TouchableOpacity>
+          {currentUserPost && (
+              <TouchableOpacity
+                onPress={() => deleteUserImage(item)}
+                style={styles.deleteComment}
+              >
+                <Feather name="x" size={16} color="deepskyblue" />
+                <Text style={styles.deleteCommentText}>Delete</Text>
+              </TouchableOpacity>
+            )}
+            </View>
           <Image
             source={{ uri: item.image_path }}
             style={styles.image}
@@ -536,18 +625,15 @@ const LiveFeed = ({ navigation }) => {
               console.log('Image loading error:', error.nativeEvent.error)
             }
           />
-          {}
           <View style={styles.reactionContainer}>
             <TouchableOpacity onPress={() => openImage(item)}>
               <Text style={styles.postComment}>View comments</Text>
             </TouchableOpacity>
-            {
-              <SubmitReaction
-                onReactionSelect={handleImageReaction}
-                user_image_id={item.user_image_id}
-                selectedReaction={reactions[item.user_image_id] || null}
-              />
-            }
+            <SubmitReaction
+              onReactionSelect={handleImageReaction}
+              user_image_id={item.user_image_id}
+              selectedReaction={reactions[item.user_image_id] || null}
+            />
           </View>
           <View style={styles.emojiResults}>
             {renderEmojiCount(item.post_like)}
@@ -563,12 +649,16 @@ const LiveFeed = ({ navigation }) => {
           />
         </View>
       )
-      //will render results it vote cast
-    } else if (item.type === 'user_poll') {
+    }
+  })
+  //will render results it vote cast
+  const MemoizedUserPoll = React.memo(({ item }) => {
+    if (item.type === 'user_poll') {
       const showResults = pollResultsData && pollResultsData[item.user_poll_id]
-      const hasVoted = votingStatus[item.user_poll_id] // Get hasVoted for the specific poll item
+      const hasVoted = votingStatus[item.user_poll_id]
       const isProfileModalVisible =
         profileModalVisibility[item.user_profile_id] || false
+
       return (
         <View key={item.user_post_id} style={styles.postItemContainer}>
           <TouchableOpacity
@@ -577,7 +667,8 @@ const LiveFeed = ({ navigation }) => {
             <Text style={styles.userName}>{item.user_profile_name}</Text>
           </TouchableOpacity>
           <Text style={styles.pollQuestion}>{item.user_poll_question}</Text>
-          {hasVoted ? ( // Conditionally render based on the hasVoted flag
+
+          {hasVoted ? (
             // Render the poll results if the user has voted
             <View>
               <View style={styles.pollStylingResult}>
@@ -667,6 +758,17 @@ const LiveFeed = ({ navigation }) => {
         </View>
       )
     }
+    return null // Return null for other item types
+  })
+
+  const renderPostItem = ({ item }) => {
+    if (item.type === 'user_post') {
+      return <MemoizedUserPost item={item} />
+    } else if (item.type === 'user_image') {
+      return <MemoizedUserImage item={item} />
+    } else if (item.type === 'user_poll') {
+      return <MemoizedUserPoll item={item} />
+    }
   }
 
   return (
@@ -696,7 +798,6 @@ const LiveFeed = ({ navigation }) => {
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
-          
         />
       </View>
       <View style={styles.optionContainer}>
@@ -977,7 +1078,17 @@ const styles = StyleSheet.create({
   clearButton: {
     marginLeft: 300,
     marginTop: 15,
-  }
+  },
+  deleteComment: {
+    flexDirection: 'row',
+    paddingLeft: 250,
+  },
+  deleteCommentText: {
+    color: 'deepskyblue',
+  },
+  nameAndDeleteDisplay: {
+    flexDirection: 'row',
+  },
 })
 
 export default LiveFeed
