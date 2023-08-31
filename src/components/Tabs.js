@@ -21,7 +21,7 @@ const Tabs = ({ navigation }) => {
       screenOptions={{
         tabBarActiveTintColor: '#17b4ac',
         tabBarInactiveTintColor: 'black',
-        tabBarLabelStyle: { fontSize: 13}
+        tabBarLabelStyle: { fontSize: 13 }
       }}
     >
       <Tab.Screen

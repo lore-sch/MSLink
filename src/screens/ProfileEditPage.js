@@ -229,7 +229,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
       )}
       {isEditing && (
         <TouchableOpacity style={styles.cameraIcon} onPress={toggleCameraModal}>
-          <Feather name="camera" size={18} color="white" />
+          <Feather name="camera" size={24} color="white" />
         </TouchableOpacity>
       )}
       {isEditing ? (
@@ -254,18 +254,22 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
       </ScrollView>
       {isEditing ? (
         <View style={styles.editButtonsContainer}>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={handleSaveProfile}
-          >
-            <Feather name="check" size={20} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={handleCancelEdit}
-          >
-            <Feather name="x" size={20} color="white" />
-          </TouchableOpacity>
+          <View style={styles.yesNoButtons}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={handleSaveProfile}
+            >
+              <Feather name="check" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.yesNoButtons}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={handleCancelEdit}
+            >
+              <Feather name="x" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <View style={styles.editButtonProfile}>
@@ -275,7 +279,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
                 style={styles.editButton}
                 onPress={handleEditProfile}
               >
-                <Feather name="edit" size={20} color="white" />
+                <Feather name="edit" size={25} color="white" />
               </TouchableOpacity>
             </View>
           )}
@@ -368,13 +372,13 @@ const styles = StyleSheet.create({
   },
   editButtonsContainer: {
     flexDirection: 'row',
+    marginBottom: 20,
   },
   editButton: {
-    marginLeft: 10,
     backgroundColor: 'deepskyblue',
-    borderRadius: 20,
-    width: 35,
-    height: 35,
+    borderRadius: 30,
+    width: 38,
+    height: 38,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -384,14 +388,17 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
   },
+  yesNoButtons: {
+    marginHorizontal: 20
+  },
   cameraIcon: {
     position: 'absolute',
     bottom: 400,
-    right: 110,
+    right: 100,
     backgroundColor: 'deepskyblue',
     borderRadius: 20,
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },

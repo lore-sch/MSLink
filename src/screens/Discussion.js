@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Platform,
   FlatList,
   Modal,
 } from 'react-native'
@@ -15,6 +14,8 @@ import DiscussionResponse from './DiscussionResponse'
 import { Feather } from '@expo/vector-icons'
 import { Ionicons } from '@expo/vector-icons'
 import SearchModal from './SearchModal'
+import ApiUtility from '../components/ApiUtility'
+
 //button styling and set up
 const SquareButton = ({ title, onPress }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
@@ -30,6 +31,8 @@ const Discussion = () => {
   const [comments, setComments] = useState([])
   const [searchModalVisible, setSearchModalVisible] = useState(false)
   const [searchResults, setSearchResults] = useState(false)
+
+  const apiUrl = ApiUtility()
 
   const clearSearch = () => {
     fetchDiscussionPosts()
@@ -57,13 +60,8 @@ const Discussion = () => {
   }
   //route to fetch each discussion post
   const fetchDiscussionPosts = async () => {
-    let apiUrl = 'http://localhost:3000/DiscussionPost' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/DiscussionPost' // Override API URL for Android
-    }
     try {
-      const response = await axios.get(apiUrl)
+      const response = await axios.get(`${apiUrl}/DiscussionPost`)
       const postData = response.data
       setPosts(postData)
       setSearchResults(false)
@@ -73,13 +71,8 @@ const Discussion = () => {
   }
   //fetches posts for outcome of search criteria
   const fetchSearchDiscussionPosts = async (searchTerm = '') => {
-    let apiUrl = 'http://localhost:3000/DiscussionPostSearch' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/DiscussionPostSearch' // Override API URL for Android
-    }
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${apiUrl}/DiscussionPostSearch`, {
         params: {
           searchTerm: searchTerm,
         },
@@ -95,11 +88,6 @@ const Discussion = () => {
   //post report
   const handleDiscussionPost = async () => {
     try {
-      // Determine the API URL based on the platform (Android or iOS)
-      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
-      }
       const response = await axios.post(`${apiUrl}/DiscussionPost`, {
         discussionText: enteredPost,
       })
@@ -138,7 +126,7 @@ const Discussion = () => {
     setSearchModalVisible(false)
   }
   //sets up changing colours for discussion posts
-  const postColors = ['pink', 'blue', 'green']
+  const postColors = ['black', 'blue', 'green', 'purple', 'maroon', 'brown']
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -239,16 +227,18 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     marginLeft: 300,
-    marginTop: 0,
+    marginTop: 30,
+    position: 'relative'
   },
   clearButton: {
     marginLeft: 300,
     marginTop: 15,
   },
   adminContainer: {
-    borderWidth: 1,
     padding: 10,
     borderRadius: 10,
+    marginBottom: 180,
+    position: 'relative'
   },
   inputPrompt: {
     fontSize: 15,
@@ -286,6 +276,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
     width: 350,
+    position: 'relative',
   },
   closeButton: {
     position: 'absolute',
@@ -300,7 +291,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   postComment: {
-    fontSize: 16,
+    fontSize: 18,
     color: 'deepskyblue',
     paddingTop: 20,
   },
@@ -311,12 +302,13 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   discussionPost: {
-    padding: 60,
-    borderRadius: 20,
+    padding: 40,
+    borderRadius: 20, 
   },
   discussionText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 20,
+    lineHeight: 30,
   },
 })
 export default Discussion

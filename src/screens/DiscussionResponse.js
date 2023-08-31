@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Alert
+  Alert,
 } from 'react-native'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
 import { useNavigation } from '@react-navigation/native'
 import ApiUtility from '../components/ApiUtility'
 import { Feather } from '@expo/vector-icons'
+import moment from 'moment'
 
 const DiscussionResponse = ({
   post,
@@ -84,16 +85,21 @@ const DiscussionResponse = ({
     return (
       <View style={styles.commentsContainer}>
         <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
-        <Text style={styles.commentText}>{item.discussion_comment}</Text>
-        {currentUserComment && (
-          <TouchableOpacity
-            onPress={() => deleteComment(item)}
-            style={styles.deleteComment}
-          >
-            <Feather name="x" size={16} color="deepskyblue" />
-            <Text style={styles.deleteCommentText}>Delete</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.commentStyle}>
+          <Text style={styles.commentText}>{item.discussion_comment}</Text>
+          <Text style={styles.timeStampCommentStyle}>
+            {moment(item.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
+          </Text>
+          {currentUserComment && (
+            <TouchableOpacity
+              onPress={() => deleteComment(item)}
+              style={styles.deleteComment}
+            >
+              <Feather name="x" size={16} color="deepskyblue" />
+              <Text style={styles.deleteCommentText}>Delete</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     )
   }
@@ -166,6 +172,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: 'row',
     marginBottom: 20,
+    borderBottomWidth: 0.5,
+    borderColor: '#aebdbf',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -177,6 +185,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     height: 40,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: '#aebdbf',
     borderRadius: 5,
@@ -188,10 +197,11 @@ const styles = StyleSheet.create({
     color: 'deepskyblue',
   },
   postText: {
-    fontSize: 16,
+    fontSize: 20,
     marginTop: 10,
     marginBottom: 10,
     color: 'white',
+    lineHeight: 30,
   },
   button: {
     marginLeft: 10,
@@ -221,7 +231,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   commentText: {
-    fontSize: 16,
+    fontSize: 17,
   },
   profileNameText: {
     fontSize: 16,
@@ -231,18 +241,25 @@ const styles = StyleSheet.create({
   },
   deleteComment: {
     flexDirection: 'row',
-    paddingLeft: 75,
+    paddingTop: 10,
   },
   deleteCommentText: {
     color: 'deepskyblue',
   },
   discussionPost: {
-    padding: 60,
+    padding: 30,
     borderRadius: 20,
   },
   discussionText: {
     color: 'white',
-    fontSize: 16,
+  },
+  timeStampCommentStyle: {
+    marginTop: 10,
+  },
+  commentStyle: {
+    marginRight: 120,
+    marginBottom: 10,
+    
   },
 })
 

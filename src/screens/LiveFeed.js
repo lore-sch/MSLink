@@ -29,6 +29,7 @@ import { useNavigation } from '@react-navigation/native'
 import ProfileEditModal from './ProfileEditModal'
 import SearchModal from './SearchModal'
 import ApiUtility from '../components/ApiUtility'
+import moment from 'moment'
 
 const LiveFeed = ({ navigation }) => {
   const [enteredPost, setEnteredPost] = useState('')
@@ -157,7 +158,7 @@ const LiveFeed = ({ navigation }) => {
                 user_image_id: deleteItem.user_image_id,
                 user_id: userId,
               })
-              fetchPosts() 
+              fetchPosts()
             } catch (error) {
               console.error('Error deleting image:', error)
             }
@@ -542,7 +543,7 @@ const LiveFeed = ({ navigation }) => {
     }))
   }
 
- //redners user profile name and their 'status' or post with reactions
+  //redners user profile name and their 'status' or post with reactions
   const MemoizedUserPost = React.memo(({ item }) => {
     const currentUserPost = item.user_id === userId
     if (item.type === 'user_post') {
@@ -567,7 +568,11 @@ const LiveFeed = ({ navigation }) => {
             )}
           </View>
           <Text style={styles.postText}>{item.user_post}</Text>
-
+          <View style={styles.timeStampWrapper}>
+            <Text style={styles.timeStamp}>
+              {moment(item.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
+            </Text>
+          </View>
           <View style={styles.reactionContainer}>
             <TouchableOpacity onPress={() => openPost(item)}>
               <Text style={styles.postComment}>View comments</Text>
@@ -579,11 +584,21 @@ const LiveFeed = ({ navigation }) => {
             />
           </View>
           <View style={styles.emojiResults}>
-            {renderEmojiCount(item.post_like)}
-            {renderEmojiCount(item.post_love)}
-            {renderEmojiCount(item.post_laugh)}
-            {renderEmojiCount(item.post_sad)}
-            {renderEmojiCount(item.post_anger)}
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_like)}
+            </Text>
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_love)}
+            </Text>
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_laugh)}
+            </Text>
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_sad)}
+            </Text>
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_anger)}
+            </Text>
           </View>
           <ProfileEditModal
             user_profile_id={item.user_profile_id}
@@ -603,12 +618,12 @@ const LiveFeed = ({ navigation }) => {
       return (
         <View key={item.user_post_id} style={styles.postItemContainer}>
           <View style={styles.nameAndDeleteDisplay}>
-          <TouchableOpacity
-            onPress={() => openProfileModal(item.user_profile_id)}
-          >
-            <Text style={styles.userName}>{item.user_profile_name}</Text>
-          </TouchableOpacity>
-          {currentUserPost && (
+            <TouchableOpacity
+              onPress={() => openProfileModal(item.user_profile_id)}
+            >
+              <Text style={styles.userName}>{item.user_profile_name}</Text>
+            </TouchableOpacity>
+            {currentUserPost && (
               <TouchableOpacity
                 onPress={() => deleteUserImage(item)}
                 style={styles.deleteComment}
@@ -617,7 +632,7 @@ const LiveFeed = ({ navigation }) => {
                 <Text style={styles.deleteCommentText}>Delete</Text>
               </TouchableOpacity>
             )}
-            </View>
+          </View>
           <Image
             source={{ uri: item.image_path }}
             style={styles.image}
@@ -625,8 +640,13 @@ const LiveFeed = ({ navigation }) => {
               console.log('Image loading error:', error.nativeEvent.error)
             }
           />
+          <View style={styles.timeStampWrapper}>
+            <Text style={styles.timeStamp}>
+              {moment(item.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
+            </Text>
+          </View>
           <View style={styles.reactionContainer}>
-            <TouchableOpacity onPress={() => openImage(item)}>
+            <TouchableOpacity onPress={() => openPost(item)}>
               <Text style={styles.postComment}>View comments</Text>
             </TouchableOpacity>
             <SubmitReaction
@@ -636,11 +656,21 @@ const LiveFeed = ({ navigation }) => {
             />
           </View>
           <View style={styles.emojiResults}>
-            {renderEmojiCount(item.post_like)}
-            {renderEmojiCount(item.post_love)}
-            {renderEmojiCount(item.post_laugh)}
-            {renderEmojiCount(item.post_sad)}
-            {renderEmojiCount(item.post_anger)}
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_like)}
+            </Text>
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_love)}
+            </Text>
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_laugh)}
+            </Text>
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_sad)}
+            </Text>
+            <Text style={styles.emojiCount}>
+              {renderEmojiCount(item.post_anger)}
+            </Text>
           </View>
           <ProfileEditModal
             user_profile_id={item.user_profile_id}
@@ -980,11 +1010,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   postText: {
-    fontSize: 16,
+    fontSize: 17,
     marginBottom: 10,
   },
+  timeStampWrapper: {
+    marginLeft: 193,
+  },
+  timeStamp: {
+    fontSize: 12,
+    color: 'black',
+    paddingBottom: 20,
+  },
   userName: {
-    fontSize: 16,
+    fontSize: 17,
     color: 'deepskyblue',
     paddingBottom: 5,
   },
@@ -1061,19 +1099,21 @@ const styles = StyleSheet.create({
   },
   emojiResultsContainer: {
     marginLeft: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderRadius: 9,
-    borderColor: 'deepskyblue',
-    padding: 2,
+    marginBottom: 15, 
   },
   emojiResults: {
     flexDirection: 'row',
-    marginTop: 5,
-    marginLeft: 130,
+    marginTop: 2,
+    marginLeft: 125,
+  },
+  emojiCount: {
+    color: 'deepskyblue',
+    marginLeft: 20,
+    marginBottom: 10,
   },
   noEmojiResult: {
     borderColor: 'white',
+    backgroundColor: 'white',
   },
   clearButton: {
     marginLeft: 300,
@@ -1081,7 +1121,7 @@ const styles = StyleSheet.create({
   },
   deleteComment: {
     flexDirection: 'row',
-    paddingLeft: 250,
+    paddingLeft: 200,
   },
   deleteCommentText: {
     color: 'deepskyblue',

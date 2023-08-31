@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Feather } from '@expo/vector-icons'
 import ApiUtility from '../components/ApiUtility'
 import ProfileEditModal from './ProfileEditModal'
+import moment from 'moment'
 
 const PostResponse = ({
   post,
@@ -118,16 +119,21 @@ const PostResponse = ({
         >
           <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
         </TouchableOpacity>
-        <Text style={styles.commentText}>{item.post_comment}</Text>
-        {currentUserComment && (
-          <TouchableOpacity
-            onPress={() => deleteComment(item)}
-            style={styles.deleteComment}
-          >
-            <Feather name="x" size={16} color="deepskyblue" />
-            <Text style={styles.deleteCommentText}>Delete</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.commentStyle}>
+          <Text style={styles.commentText}>{item.post_comment}</Text>
+          <Text style={styles.timeStampCommentStyle}>
+            {moment(item.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
+          </Text>
+          {currentUserComment && (
+            <TouchableOpacity
+              onPress={() => deleteComment(item)}
+              style={styles.deleteComment}
+            >
+              <Feather name="x" size={16} color="deepskyblue" />
+              <Text style={styles.deleteCommentText}>Delete</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         <ProfileEditModal
           user_profile_id={item.user_profile_id}
           visible={isProfileModalVisible}
@@ -152,6 +158,9 @@ const PostResponse = ({
       <View style={styles.postContainer}>
         <Text style={styles.postUserName}>{post.user_profile_name}</Text>
         <Text style={styles.postText}>{post.user_post}</Text>
+        <Text style={styles.commentTimeStyling}>
+          {moment(post.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
+        </Text>
       </View>
 
       <View style={styles.commentsContainer}>
@@ -202,9 +211,12 @@ const styles = StyleSheet.create({
   },
   commentsContainer: {
     flex: 1,
-    marginTop: 20,
+    marginRight: 5,
+    marginTop: 5,
     flexDirection: 'row',
     marginBottom: 20,
+    borderBottomWidth: 0.5,
+    borderColor: '#aebdbf',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -269,10 +281,24 @@ const styles = StyleSheet.create({
   },
   deleteComment: {
     flexDirection: 'row',
-    paddingLeft: 75,
+    paddingTop: 20,
   },
   deleteCommentText: {
     color: 'deepskyblue',
+  },
+  commentStyle: {
+    marginRight: 120,
+    marginBottom: 20,
+  },
+  commentTimeStyling: {
+    paddingTop: 20,
+    paddingBottom: 20,
+  },
+  timeStampComment: {
+    paddingTop: 20,
+  },
+  timeStampCommentStyle: {
+    marginTop: 10,
   },
 })
 

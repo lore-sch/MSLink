@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native'
 import ApiUtility from '../components/ApiUtility'
 import { Feather } from '@expo/vector-icons'
 import ProfileEditModal from './ProfileEditModal'
+import moment from 'moment'
 
 const ImageResponse = ({
   post: imagePost,
@@ -125,6 +126,10 @@ const ImageResponse = ({
           <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
         </TouchableOpacity>
         <Text style={styles.commentText}>{item.post_comment}</Text>
+        <Text style={styles.timeStampCommentStyle}>
+          {moment(item.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
+        </Text>
+
         {currentUserComment && (
           <TouchableOpacity
             onPress={() => deleteComment(item)}
@@ -152,7 +157,6 @@ const ImageResponse = ({
     closePost()
     navigation.navigate('Report')
   }
-
   return (
     <View style={styles.container}>
       <View style={styles.postContainer}>
@@ -165,7 +169,9 @@ const ImageResponse = ({
           }
         />
       </View>
-
+      <Text style={styles.timeStampCommentStyle}>
+        {moment(imagePost.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
+      </Text>
       <View style={styles.commentsContainer}>
         <FlatList
           data={comments}
