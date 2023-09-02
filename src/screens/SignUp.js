@@ -71,7 +71,7 @@ const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
       return
     }
     if (!validateEmail(enteredEmailAddress)) {
-      Alert.alert('Invalid email address. Please try again.')
+      setInvalidEmail(true)
       return
     }
 
@@ -123,13 +123,19 @@ const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
           )}
           {emailAlreadyExists && (
             <Text style={styles.errorMessage}>
-              Email address already exists. Please try again.
+              An account with this email address already exists. Try logging in
+              or enter a new email address.
             </Text>
           )}
           {invalidPassword && (
             <Text style={styles.errorMessage}>
               Password must contain at least 8 characters, one uppercase letter,
               one lowercase letter, and one digit.
+            </Text>
+          )}
+          {invalidEmail && (
+            <Text style={styles.errorMessage}>
+              Invalid email address. Please try again.
             </Text>
           )}
           <View style={styles.buttonContainer}>

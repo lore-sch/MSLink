@@ -98,7 +98,7 @@ const LiveFeed = ({ navigation }) => {
           reactions: reactions,
         }
       })
-
+    console.log(updatedPosts)
       setPosts(updatedPosts)
       setSearchResults(false)
     } catch (error) {

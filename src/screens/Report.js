@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     writingDirection: 'ltr',
     fontSize: 18,
+    backgroundColor: 'white'
   },
   buttonContainer: {
     flexDirection: 'row',

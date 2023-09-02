@@ -17,18 +17,26 @@ const Onboarding = ({ onComplete }) => {
   return (
     <View style={styles.container}>
       <ViewPager style={styles.pageContainer} initialPage={0} ref={pagerRef}>
-        <View key='1'>
+        <View key="1">
           <View style={styles.pageOne}>
             <Text style={styles.titleText}>Welcome to MS Link</Text>
+            <Feather
+              name="link"
+              size={50}
+              color="navy"
+              style={styles.featherStyle}
+            />
             <Text style={styles.pageText}>
               MS Link creates a space for people in Northern Ireland with MS to
-              share their story, interact with other users and view and comments
-              on topics related to MS and gain other's experiences and views.
+              share their story, interact with other users and view comments on
+              topics related to MS and gain insight into others experiences and
+              views.
             </Text>
-            <Button title='Next' onPress={() => handlePageChange(1)} />
+            
+            <Button title="Next" onPress={() => handlePageChange(1)} />
           </View>
         </View>
-        <View key='2'>
+        <View key="2">
           <View style={styles.pageTwo}>
             <View style={styles.editText}>
               <Text style={styles.editTitleOnboard}>Profile Page</Text>
@@ -40,7 +48,7 @@ const Onboarding = ({ onComplete }) => {
             </View>
             <View style={styles.profilePictureContainer}>
               <View style={styles.editButton}>
-                <Feather name='edit' size={20} color='white' />
+                <Feather name="edit" size={20} color="white" />
               </View>
               <Image
                 source={require('../../assets/avatar.jpeg')}
@@ -62,7 +70,7 @@ const Onboarding = ({ onComplete }) => {
               </Text>
             </View>
             <View style={styles.profileTab}>
-              <FontAwesome name='user-circle' size={25} color={'#17b4ac'} />
+              <FontAwesome name="user-circle" size={25} color={'#17b4ac'} />
             </View>
             <Text style={styles.selectedProfileTab}>Profile</Text>
             <View style={styles.discussionTab}>
@@ -79,15 +87,15 @@ const Onboarding = ({ onComplete }) => {
             <Text style={styles.feedTabunselected}>Live Feed</Text>
             <View style={styles.button}>
               <View style={styles.previous}>
-                <Button title='Previous' onPress={() => handlePageChange(0)} />
+                <Button title="Previous" onPress={() => handlePageChange(0)} />
               </View>
               <View style={styles.next}>
-                <Button title='Next' onPress={() => handlePageChange(2)} />
+                <Button title="Next" onPress={() => handlePageChange(2)} />
               </View>
             </View>
           </View>
         </View>
-        <View key='3'>
+        <View key="3">
           <View style={styles.pageThree}>
             <Text style={styles.discussionExplanation}>
               Use the discussion tab to explore topics and questions within the
@@ -101,7 +109,7 @@ const Onboarding = ({ onComplete }) => {
             </View>
             <Text style={styles.viewComments}> View comments</Text>
             <View style={styles.profileTab}>
-              <FontAwesome name='user-circle' size={25} color={'black'} />
+              <FontAwesome name="user-circle" size={25} color={'black'} />
             </View>
             <Text style={styles.unselectedProfileTab}>Profile</Text>
             <View style={styles.discussionTab}>
@@ -118,15 +126,15 @@ const Onboarding = ({ onComplete }) => {
             <Text style={styles.feedTabunselected}>Live Feed</Text>
             <View style={styles.button}>
               <View style={styles.previous}>
-                <Button title='Previous' onPress={() => handlePageChange(1)} />
+                <Button title="Previous" onPress={() => handlePageChange(1)} />
               </View>
               <View style={styles.next}>
-                <Button title='Next' onPress={() => handlePageChange(3)} />
+                <Button title="Next" onPress={() => handlePageChange(3)} />
               </View>
             </View>
           </View>
         </View>
-        <View key='4'>
+        <View key="4">
           <View style={styles.pageFour}>
             <Text style={styles.liveFeedExplanation}>
               Use the live feed tab to see what other users in the community
@@ -135,11 +143,11 @@ const Onboarding = ({ onComplete }) => {
             </Text>
             <View style={styles.userPost}>
               <View style={styles.examplePost}>
-              <Text style={styles.userNameFeed}>Anna</Text>
-              <Text style={styles.userNamePost}>
-                I am changing to a new treatment next week and I am a bit
-                nervous. Has anyone tried Fingolimod?
-              </Text>
+                <Text style={styles.userNameFeed}>Anna</Text>
+                <Text style={styles.userNamePost}>
+                  I am changing to a new treatment next week and I am a bit
+                  nervous. Has anyone tried Fingolimod?
+                </Text>
               </View>
               <Text style={styles.userNameFeed}>Nuala</Text>
               <Text style={styles.userNameText}>
@@ -148,14 +156,13 @@ const Onboarding = ({ onComplete }) => {
               </Text>
               <Text style={styles.userNameFeed}>Barry</Text>
               <Text style={styles.userNameText}>
-                I was but then I had to change to something stronger- liked it though!
+                I was but then I had to change to something stronger- liked it
+                though!
               </Text>
-              <Text style={styles.addCommentText}>
-                Add a comment...
-              </Text>
+              <Text style={styles.addCommentText}>Add a comment...</Text>
             </View>
             <View style={styles.profileTab}>
-              <FontAwesome name='user-circle' size={25} color={'black'} />
+              <FontAwesome name="user-circle" size={25} color={'black'} />
             </View>
             <Text style={styles.unselectedProfileTab}>Profile</Text>
             <View style={styles.discussionTab}>
@@ -172,11 +179,11 @@ const Onboarding = ({ onComplete }) => {
             <Text style={styles.feedTabselected}>Live Feed</Text>
             <View style={styles.button}>
               <View style={styles.previous}>
-                <Button title='Previous' onPress={() => handlePageChange(2)} />
+                <Button title="Previous" onPress={() => handlePageChange(2)} />
               </View>
               <View style={styles.next}>
                 <Button
-                  title='Finish'
+                  title="Finish"
                   onPress={() => {
                     onComplete()
                   }}
@@ -186,7 +193,7 @@ const Onboarding = ({ onComplete }) => {
           </View>
         </View>
         <Button
-          title='Get Started'
+          title="Get Started"
           onPress={() => {
             onComplete()
           }}
@@ -208,7 +215,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 20,
+    margin: 30,
     borderRadius: 10,
   },
   pageTwo: {
@@ -234,8 +241,9 @@ const styles = StyleSheet.create({
   },
   titleText: {
     color: 'navy',
-    fontSize: 24,
+    fontSize: 30,
     padding: 10,
+    fontWeight: 'bold',
   },
   pageText: {
     color: 'navy',
@@ -245,7 +253,6 @@ const styles = StyleSheet.create({
     marginTop: 100,
     backgroundColor: 'white',
     margin: 20,
-    borderRadius: 0,
   },
   profilePictureContainer: {
     width: 150,
@@ -357,7 +364,10 @@ const styles = StyleSheet.create({
     margin: 25,
     lineHeight: 25,
     color: 'black',
-    fontSize: 16,
+    fontSize: 18,
+    borderWidth: 1,
+    borderRadius: 10, 
+    padding: 10,
   },
   discussionExample: {
     backgroundColor: '#e8d9f2',
@@ -378,11 +388,14 @@ const styles = StyleSheet.create({
     color: 'deepskyblue',
   },
   liveFeedExplanation: {
-    margin: 25,
+    margin: 10,
     marginTop: -15,
     lineHeight: 25,
-    color: 'blue',
-    fontSize: 16,
+    color: 'black',
+    fontSize: 18,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10
   },
   userNameFeed: {
     color: 'deepskyblue',
@@ -412,11 +425,15 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 25,
     borderWidth: 1,
-    borderColor:'grey',
+    borderColor: 'grey',
     color: 'grey',
     padding: 10,
-    borderRadius:5,
-  } 
+    borderRadius: 5,
+  },
+  featherStyle: {
+    marginBottom: -40,
+    marginTop: 10,
+  }
 })
 
 export default Onboarding
