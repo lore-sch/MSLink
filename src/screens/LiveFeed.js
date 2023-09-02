@@ -98,7 +98,7 @@ const LiveFeed = ({ navigation }) => {
           reactions: reactions,
         }
       })
-    console.log(updatedPosts)
+      console.log(updatedPosts)
       setPosts(updatedPosts)
       setSearchResults(false)
     } catch (error) {
@@ -307,6 +307,7 @@ const LiveFeed = ({ navigation }) => {
   }
 
   //handles new posts by users
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false)
   const postButtonHandler = async () => {
     let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
 
@@ -315,6 +316,7 @@ const LiveFeed = ({ navigation }) => {
     }
 
     try {
+      setIsButtonDisabled(true)
       const formData = new FormData()
       formData.append('userPost', enteredPost)
       formData.append('user_id', userId)
@@ -341,6 +343,7 @@ const LiveFeed = ({ navigation }) => {
     } catch (error) {
       console.error('Error posting:', error)
     }
+    setIsButtonDisabled(false)
   }
 
   //open post function to view comments
@@ -562,7 +565,7 @@ const LiveFeed = ({ navigation }) => {
                 onPress={() => deletePost(item)}
                 style={styles.deleteComment}
               >
-                <Feather name="x" size={16} color="deepskyblue" />
+                <Feather name='x' size={16} color='deepskyblue' />
                 <Text style={styles.deleteCommentText}>Delete</Text>
               </TouchableOpacity>
             )}
@@ -628,7 +631,7 @@ const LiveFeed = ({ navigation }) => {
                 onPress={() => deleteUserImage(item)}
                 style={styles.deleteComment}
               >
-                <Feather name="x" size={16} color="deepskyblue" />
+                <Feather name='x' size={16} color='deepskyblue' />
                 <Text style={styles.deleteCommentText}>Delete</Text>
               </TouchableOpacity>
             )}
@@ -681,7 +684,7 @@ const LiveFeed = ({ navigation }) => {
       )
     }
   })
-  //will render results it vote cast
+  //will render results if vote cast
   const MemoizedUserPoll = React.memo(({ item }) => {
     if (item.type === 'user_poll') {
       const showResults = pollResultsData && pollResultsData[item.user_poll_id]
@@ -805,7 +808,7 @@ const LiveFeed = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.searchContainer}>
         <TouchableOpacity onPress={openSearchModal}>
-          <Ionicons name="ios-search" size={24} color="deepskyblue" />
+          <Ionicons name='ios-search' size={24} color='deepskyblue' />
         </TouchableOpacity>
       </View>
       <SearchModal
@@ -818,13 +821,13 @@ const LiveFeed = ({ navigation }) => {
       />
       {searchResults && ( // Show "Clear" button only if search term is not empty
         <TouchableOpacity style={styles.clearButton} onPress={clearSearch}>
-          <Feather name="x" size={24} color="red" />
+          <Feather name='x' size={24} color='red' />
         </TouchableOpacity>
       )}
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder="Share with us..."
+          placeholder='Share with us...'
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
@@ -832,25 +835,29 @@ const LiveFeed = ({ navigation }) => {
       </View>
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
+        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
         <TouchableOpacity
           style={styles.optionText}
           onPress={() => setCameraModalVisible(true)}
         >
           <Text style={styles.optionText}>Photo</Text>
-          <FontAwesome name="photo" size={20} color="deepskyblue" />
+          <FontAwesome name='photo' size={20} color='deepskyblue' />
         </TouchableOpacity>
         <TouchableOpacity style={styles.optionText} onPress={showPollModal}>
           <Text style={styles.optionText}>Poll</Text>
-          <AntDesign name="barschart" size={20} color="deepskyblue" />
+          <AntDesign name='barschart' size={20} color='deepskyblue' />
         </TouchableOpacity>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={postButtonHandler}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={postButtonHandler}
+            disabled={isButtonDisabled}
+          >
             <Text style={styles.buttonText}>Post</Text>
           </TouchableOpacity>
         </View>
         <Modal
-          animationType="slide"
+          animationType='slide'
           transparent={true}
           visible={isCameraModalVisible}
           onRequestClose={() => setCameraModalVisible(false)}
@@ -886,7 +893,7 @@ const LiveFeed = ({ navigation }) => {
           </View>
         </Modal>
         <Modal
-          animationType="slide"
+          animationType='slide'
           transparent={true}
           visible={isPollModalVisible}
           onRequestClose={hidePollModal}
@@ -932,7 +939,7 @@ const LiveFeed = ({ navigation }) => {
                 />
               ) : null}
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-                <Feather name="x" size={14} color="white" />
+                <Feather name='x' size={14} color='white' />
               </TouchableOpacity>
             </Modal>
           )
@@ -1099,7 +1106,7 @@ const styles = StyleSheet.create({
   },
   emojiResultsContainer: {
     marginLeft: 15,
-    marginBottom: 15, 
+    marginBottom: 15,
   },
   emojiResults: {
     flexDirection: 'row',
