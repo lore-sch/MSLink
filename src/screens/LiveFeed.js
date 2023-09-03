@@ -98,9 +98,6 @@ const LiveFeed = ({ navigation }) => {
           reactions: reactions,
         }
       })
-      console.log('*' * 800)
-      console.log('fishfry')
-      console.log(updatedPosts)
       setPosts(updatedPosts)
       setSearchResults(false)
     } catch (error) {
