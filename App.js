@@ -38,7 +38,7 @@ const App = () => {
     async function checkOnboardingStatus() {
       const completed = await AsyncStorage.getItem('onboardingCompleted')
       if (completed === 'true') {
-        setOnboardingCompleted(true) //change to true/false for editing purpsoes tp view
+        setOnboardingCompleted(false) //change to true/false for editing purpsoes tp view
       }
     }
     checkOnboardingStatus()
@@ -46,7 +46,7 @@ const App = () => {
 
   useEffect(() => {
     if (onboardingCompleted) {
-      AsyncStorage.setItem('onboardingCompleted', 'true') //change to true/false for editing
+      AsyncStorage.setItem('onboardingCompleted', 'false') //change to true/false for editing
     }
   }, [onboardingCompleted]) // Run whenever onboardingCompleted changes
 

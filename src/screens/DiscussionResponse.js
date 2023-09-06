@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native'
 import ApiUtility from '../components/ApiUtility'
 import { Feather } from '@expo/vector-icons'
 import moment from 'moment'
+import ProfileEditModal from './ProfileEditModal'
 
 const DiscussionResponse = ({
   post,
@@ -26,6 +27,7 @@ const DiscussionResponse = ({
 }) => {
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
+  const [profileModalVisibility, setProfileModalVisibility] = useState({})
   const { userId } = useContext(AuthContext)
 
   const apiUrl = ApiUtility()
@@ -80,11 +82,31 @@ const DiscussionResponse = ({
     )
   }
 
+  const openProfileModal = (user_profile_id) => {
+    setProfileModalVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [user_profile_id]: true,
+    }))
+  }
+
+  const closeModal = (user_profile_id) => {
+    setProfileModalVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [user_profile_id]: false,
+    }))
+  }
+
   const renderComment = ({ item }) => {
     const currentUserComment = item.user_id === userId
+    const isProfileModalVisible =
+        profileModalVisibility[item.user_profile_id] || false
     return (
       <View style={styles.commentsContainer}>
-        <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
+           <TouchableOpacity
+          onPress={() => openProfileModal(item.user_profile_id)}
+        >
+          <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
+        </TouchableOpacity>
         <View style={styles.commentStyle}>
           <Text style={styles.commentText}>{item.discussion_comment}</Text>
           <Text style={styles.timeStampCommentStyle}>
@@ -100,6 +122,11 @@ const DiscussionResponse = ({
             </TouchableOpacity>
           )}
         </View>
+        <ProfileEditModal
+          user_profile_id={item.user_profile_id}
+          visible={isProfileModalVisible}
+          onClose={() => closeModal(item.user_profile_id)}
+        />
       </View>
     )
   }

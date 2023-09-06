@@ -70,7 +70,6 @@ const LiveFeed = ({ navigation }) => {
           }
         } else if (post.type === 'user_poll') {
           // Handle the user_poll data here
-          // For example, you can construct the poll options as an array of strings
           const pollOptions = [
             post.user_poll_option_1,
             post.user_poll_option_2,
