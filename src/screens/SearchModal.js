@@ -9,6 +9,13 @@ import {
 } from 'react-native'
 import { useState } from 'react'
 
+//button styling and set up
+const SquareButton = ({ title, onPress }) => (
+  <TouchableOpacity style={styles.button} onPress={onPress}>
+    <Text style={styles.buttonText}>{title}</Text>
+  </TouchableOpacity>
+)
+
 const SearchModal = ({
   openSearchModal,
   closeSearchModal,
@@ -31,16 +38,26 @@ const SearchModal = ({
           onChangeText={setSearchTerm}
           value={searchTerm}
         />
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={() => {
-            fetchSearchResults(searchTerm)
-            closeSearchModal()
-            setSearchTerm('')
-          }}
-        >
-          <Text style={styles.searchButtonText}>Search</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              fetchSearchResults(searchTerm)
+              closeSearchModal()
+              setSearchTerm('')
+            }}
+          >
+            <Text style={styles.buttonText}>Search</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              closeSearchModal()
+            }}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Modal>
   )
@@ -58,8 +75,26 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderRadius: 6,
     width: '80%',
-    padding: 8,
+    padding: 18,
     margin: 15,
+    lineHeight: 0,
+  },
+  button: {
+    marginLeft: 10,
+    backgroundColor: 'deepskyblue',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginHorizontal: 30,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 17,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
 export default SearchModal

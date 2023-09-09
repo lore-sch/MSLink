@@ -23,6 +23,7 @@ const ForgotPassword = ({
   setSuccessMessage,
 }) => {
   const [enteredEmailAddress, setEnteredEmailAddress] = useState('')
+  const [invalidEmail, setInvalidEmail] = useState(false)
 
   const emailHandler = (enteredEmailAddress) => {
     setEnteredEmailAddress(enteredEmailAddress)
@@ -31,7 +32,7 @@ const ForgotPassword = ({
 
   const handleResetPassword = () => {
     if (!validateEmail(enteredEmailAddress)) {
-      Alert.alert('Invalid email address. Please try again.')
+      setInvalidEmail(true)
       return
     }
     setShowPasswordModal(false)
@@ -46,6 +47,11 @@ const ForgotPassword = ({
           placeholder="example@example.co.uk"
           onChangeText={emailHandler}
         />
+        {invalidEmail && (
+            <Text style={styles.errorMessage}>
+              Invalid email address. Please try again.
+            </Text>
+          )}
         <View style={styles.buttonContainer}>
           <SquareButton
             title="Send"
@@ -54,6 +60,7 @@ const ForgotPassword = ({
           <SquareButton
             title="Cancel"
             onPress={() => setShowPasswordModal(false)}
+            setSuccessMessage={false}
           />
         </View>
       </View>
@@ -99,6 +106,10 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: 'white',
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 18,
   },
 })
 

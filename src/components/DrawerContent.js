@@ -2,13 +2,14 @@
 import React, { useContext } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack'
-import { NavigationContainer } from '@react-navigation/native'
 import { AuthContext } from './AuthContext'
-import Report from '../screens/Report'
 
 const Stack = createStackNavigator()
+
 //handles log out route
 const DrawerContent = ({ navigation }) => {
+ 
+
   const { logout } = useContext(AuthContext)
   const handleLogout = () => {
     logout()
@@ -17,8 +18,6 @@ const DrawerContent = ({ navigation }) => {
 
   //handles about us
   const handleAboutUs = () => {
-    // Implement your "About Us" logic here
-    // For example, navigate to an "About Us" screen
     navigation.navigate('AboutUs')
   }
 
@@ -29,16 +28,16 @@ const DrawerContent = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-        <View style={styles.drawerContainer}>
+      <View style={styles.drawerContainer}>
         <TouchableOpacity onPress={handleAboutUs}>
-        <Text style={styles.drawerText}>About Us</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleReport}>
-        <Text style={styles.drawerText}>Report</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleLogout}>
-        <Text style={styles.drawerText}>Log Out</Text>
-      </TouchableOpacity>
+          <Text style={styles.drawerText}>About Us</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleReport}>
+          <Text style={styles.drawerText}>Report</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleLogout}>
+          <Text style={styles.drawerText}>Log Out</Text>
+        </TouchableOpacity>
       </View>
     </View>
   )

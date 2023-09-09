@@ -117,8 +117,8 @@ const LogIn = ({ showModal, setShowModal }) => {
             secureTextEntry={true}
           />
           <View style={styles.buttonContainer}>
+          <SquareButton title="Cancel" onPress={() => setShowModal(false)} />
             <SquareButton title="Log in" onPress={() => logInHandler()} />
-            <SquareButton title="Cancel" onPress={() => setShowModal(false)} />
           </View>
           {invalidPassword && (
             <Text style={styles.errorMessage}>

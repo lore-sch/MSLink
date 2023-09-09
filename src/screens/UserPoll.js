@@ -5,11 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Platform,
 } from 'react-native'
 import axios from 'axios'
 import { AuthContext } from '../components/AuthContext'
-import Poll from 'react-native-poll'
+import ApiUtility from '../components/ApiUtility'
 
 const SquareButton = ({ title, onPress }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
@@ -17,13 +16,17 @@ const SquareButton = ({ title, onPress }) => (
   </TouchableOpacity>
 )
 
-const UserPoll = ({ closePoll }) => {
+const UserPoll = ({ closePoll, fetchPosts }) => {
   const [voteData, setVoteData] = useState()
   const [totalVotes, setTotalVotes] = useState()
   const [voted, setVoted] = useState(false)
   const [pollQuestion, setPollQuestion] = useState('')
   const [pollOptions, setPollOptions] = useState(['', '', ''])
+  const MIN_TEXT_LENGTH = 0
+  const [invalidInputLength, setInvalidInputLength] = useState(false)
   const { userId } = useContext(AuthContext)
+
+  const apiUrl = ApiUtility()
 
   const pollQuestionHandler = (pollQuestion) => {
     setPollQuestion(pollQuestion)
@@ -38,23 +41,24 @@ const UserPoll = ({ closePoll }) => {
 
   //handles creation of new polls and posting
   const pollHandler = async () => {
-    let apiUrl = 'http://localhost:3000/UserPoll' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/UserPoll' // Override API URL for Android
-    }
-
     try {
-      const response = await axios.post(apiUrl, {
-        pollQuestion: pollQuestion,
-        pollOptions: pollOptions,
-        user_id: userId,
-      })
-      //resets text input fields to empty
-      setPollQuestion('')
-      setPollOptions('')
-
-      cancelPoll()
+      if (
+        pollQuestion.length > MIN_TEXT_LENGTH &&
+        pollOptions.length > MIN_TEXT_LENGTH
+      ) {
+        const response = await axios.post(`${apiUrl}/UserPoll`, {
+          pollQuestion: pollQuestion,
+          pollOptions: pollOptions,
+          user_id: userId,
+        })
+        //resets text input fields to empty
+        setPollQuestion('')
+        setPollOptions('')
+        cancelPoll()
+        fetchPosts()
+      } else {
+        setInvalidInputLength(true)
+      }
     } catch (error) {}
   }
 
@@ -62,13 +66,12 @@ const UserPoll = ({ closePoll }) => {
     closePoll()
   }
 
-
   return (
     <View style={styles.pollContainer}>
       <Text style={styles.questionPrompt}>What would you like to ask? </Text>
       <TextInput
         style={styles.questionInput}
-        placeholder='Poll question'
+        placeholder="Poll question"
         multiline={true}
         onChangeText={pollQuestionHandler}
       />
@@ -90,10 +93,14 @@ const UserPoll = ({ closePoll }) => {
         onChangeText={(text) => pollOptionsHandler(2, text)}
         multiline={true}
       />
-
+  {invalidInputLength && (
+        <Text style={styles.errorMessage}>
+          Input in every field must contain at least one character.
+        </Text>
+      )}
       <View style={styles.buttonContainer}>
-        <SquareButton title='Post' onPress={pollHandler} />
-        <SquareButton title='Cancel' onPress={cancelPoll} />
+      <SquareButton title="Cancel" onPress={cancelPoll} />
+        <SquareButton title="Post" onPress={pollHandler} />
       </View>
     </View>
   )
@@ -153,6 +160,11 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: 'white',
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 18,
+    paddingBottom: 15,
   },
 })
 export default UserPoll

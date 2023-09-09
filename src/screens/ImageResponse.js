@@ -29,7 +29,8 @@ const ImageResponse = ({
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
   const [profileModalVisibility, setProfileModalVisibility] = useState({})
-
+  const [invalidInputLength, setInvalidInputLength] = useState(false)
+  const MIN_TEXT_LENGTH = 0
   const apiUrl = ApiUtility()
 
   //api call for existing comments on images
@@ -49,15 +50,19 @@ const ImageResponse = ({
   //to post comments to existing comments on images
   const addComment = async () => {
     try {
-      const response = await axios.post(`${apiUrl}/ImageResponse`, {
-        userComment: comment,
-        user_image_id: imagePost.user_image_id,
-        user_id: userId,
-      })
+      if (comment.length > MIN_TEXT_LENGTH) {
+        const response = await axios.post(`${apiUrl}/ImageResponse`, {
+          userComment: comment,
+          user_image_id: imagePost.user_image_id,
+          user_id: userId,
+        })
 
-      setComment('')
-      fetchCommentsOnImage(user_image_id)
-      setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
+        setComment('')
+        fetchCommentsOnImage(user_image_id)
+        setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
+      } else {
+        setInvalidInputLength(true)
+      }
     } catch (error) {
       console.error('Error posting:', error)
     }
@@ -125,20 +130,21 @@ const ImageResponse = ({
         >
           <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
         </TouchableOpacity>
-        <Text style={styles.commentText}>{item.post_comment}</Text>
-        <Text style={styles.timeStampCommentStyle}>
-          {moment(item.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
-        </Text>
-
-        {currentUserComment && (
-          <TouchableOpacity
-            onPress={() => deleteComment(item)}
-            style={styles.deleteComment}
-          >
-            <Feather name="x" size={16} color="deepskyblue" />
-            <Text style={styles.deleteCommentText}>Delete</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.commentStyle}>
+          <Text style={styles.commentText}>{item.post_comment}</Text>
+          <Text style={styles.timeStampCommentStyle}>
+            {moment(item.post_comment_timestamp).format('MMMM Do YYYY, h:mm a')}
+          </Text>
+          {currentUserComment && (
+            <TouchableOpacity
+              onPress={() => deleteComment(item)}
+              style={styles.deleteComment}
+            >
+              <Feather name="x" size={16} color="deepskyblue" />
+              <Text style={styles.deleteCommentText}>Delete</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         <ProfileEditModal
           user_profile_id={item.user_profile_id}
           visible={isProfileModalVisible}
@@ -174,7 +180,7 @@ const ImageResponse = ({
       </Text>
       <View style={styles.commentsContainer}>
         <FlatList
-          data={comments}
+          data={commentList}
           renderItem={renderComment}
           keyExtractor={(item) => item.image_comment_id.toString()}
         />
@@ -192,6 +198,11 @@ const ImageResponse = ({
           <Text style={styles.buttonText}>Post</Text>
         </TouchableOpacity>
       </View>
+      {invalidInputLength && (
+        <Text style={styles.errorMessage}>
+          Input must contain at least one character.
+        </Text>
+      )}
       <Text style={styles.reportPromptText}>
         Worried about something you see?
       </Text>
@@ -226,7 +237,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 10,
     marginLeft: 20,
     marginRight: 20,
   },
@@ -289,12 +300,31 @@ const styles = StyleSheet.create({
     width: 350,
     height: 250,
   },
-  deleteComment: {
+  ddeleteComment: {
     flexDirection: 'row',
-    paddingLeft: 75,
+    paddingTop: 20,
   },
   deleteCommentText: {
     color: 'deepskyblue',
+  },
+  commentStyle: {
+    marginRight: 120,
+    marginBottom: 20,
+  },
+  commentTimeStyling: {
+    paddingTop: 20,
+    paddingBottom: 20,
+  },
+  timeStampComment: {
+    paddingTop: 20,
+  },
+  timeStampCommentStyle: {
+    marginTop: 10,
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 18,
+    paddingBottom: 15,
   },
 })
 

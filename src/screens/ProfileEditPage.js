@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Platform,
   Modal,
   ActivityIndicator,
 } from 'react-native'
@@ -170,34 +169,27 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
 
   const handleSaveProfile = async () => {
     try {
-      let apiUrl = 'http://localhost:3000/ProfileEditPage' // Default API URL for iOS
-
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000/ProfileEditPage' // Override API URL for Android
-      }
-
       const formData = new FormData()
-
       if (image) {
-        // Image picker to select an image
+        // Check if an image is available and append it to the form data
         formData.append('image', {
           uri: image,
           name: `profile_${Date.now()}.jpg`,
           type: 'image/jpeg',
         })
       }
-
       // Add profile data to the form data
       formData.append('userName', username)
       formData.append('userStory', userStory)
       formData.append('user_id', userId)
 
-      // Make the API call to save the profile data along with the image (if available)
-      const profileResponse = await axios.post(apiUrl, formData, {
+      // Make API call to save the profile data along with the image (if available)
+      await axios.post(`${apiUrl}/ProfileEditPage`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
+      // Set the editing state to false to exit the editing mode
       setIsEditing(false)
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -254,20 +246,21 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
       </ScrollView>
       {isEditing ? (
         <View style={styles.editButtonsContainer}>
-          <View style={styles.yesNoButtons}>
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={handleSaveProfile}
-            >
-              <Feather name="check" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
+          
           <View style={styles.yesNoButtons}>
             <TouchableOpacity
               style={styles.editButton}
               onPress={handleCancelEdit}
             >
               <Feather name="x" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.yesNoButtons}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={handleSaveProfile}
+            >
+              <Feather name="check" size={24} color="white" />
             </TouchableOpacity>
           </View>
         </View>
@@ -389,7 +382,7 @@ const styles = StyleSheet.create({
     right: 20,
   },
   yesNoButtons: {
-    marginHorizontal: 20
+    marginHorizontal: 20,
   },
   cameraIcon: {
     position: 'absolute',

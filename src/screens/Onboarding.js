@@ -27,12 +27,15 @@ const Onboarding = ({ onComplete }) => {
               style={styles.featherStyle}
             />
             <Text style={styles.pageText}>
-              MS Link creates a space for people in Northern Ireland with MS to
-              share their story, interact with other users and view comments on
-              topics related to MS and gain insight into others experiences and
-              views.
+              MS Link creates a community for people in Northern Ireland with MS
+              to share their story, interact with other users and explore
+              comments on topics related to MS.
             </Text>
-            
+            <Text style={styles.pageText}>
+              A safe space to gain insight into others experiences and views of
+              life with MS.
+            </Text>
+
             <Button title="Next" onPress={() => handlePageChange(1)} />
           </View>
         </View>
@@ -96,6 +99,66 @@ const Onboarding = ({ onComplete }) => {
           </View>
         </View>
         <View key="3">
+          <View style={styles.pageTwo}>
+            <View style={styles.editText}>
+              <Text style={styles.editTitleOnboard}>Profile Page</Text>
+            </View>
+            <View style={styles.editText}>
+              <Text style={styles.editTextOnboard}>
+                Use edit button to change profile name, profile picture or story
+              </Text>
+            </View>
+            <View style={styles.profilePictureContainer}>
+              <View style={styles.editButton}>
+                <Feather name="edit" size={20} color="white" />
+              </View>
+              <Image
+                source={require('../../assets/anon-avatar.jpeg')}
+                style={styles.profilePicture}
+              />
+            </View>
+            <View style={styles.usernameStyling}>
+              <Text style={styles.username}>Anonymous</Text>
+            </View>
+            <View style={styles.storyContainer}>
+              <Text style={styles.storyPrompt}>
+                When you sign in, your profile will be anonymous and you can
+                browse the app.
+              </Text>
+              <Text style={styles.storyPrompt2}>
+                If you make a small change to your profile you can interact with
+                topics and the live feed, such as posting comments.
+              </Text>
+              <Text style={styles.story} />
+            </View>
+            <View style={styles.profileTab}>
+              <FontAwesome name="user-circle" size={25} color={'#17b4ac'} />
+            </View>
+            <Text style={styles.selectedProfileTab}>Profile</Text>
+            <View style={styles.discussionTab}>
+              <MaterialCommunityIcons
+                name={'chat-plus-outline'}
+                size={25}
+                color={'black'}
+              />
+            </View>
+            <Text style={styles.discussionTabunselected}>Discussion</Text>
+            <View style={styles.FeedTab}>
+              <Entypo name={'text-document'} size={25} color={'black'} />
+            </View>
+            <Text style={styles.feedTabunselected}>Live Feed</Text>
+            <View style={styles.button}>
+              <View style={styles.previous}>
+                <Button title="Previous" onPress={() => handlePageChange(1)} />
+              </View>
+              <View style={styles.next}>
+                <Button title="Next" onPress={() => handlePageChange(3)} />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View key="4">
           <View style={styles.pageThree}>
             <Text style={styles.discussionExplanation}>
               Use the discussion tab to explore topics and questions within the
@@ -126,15 +189,16 @@ const Onboarding = ({ onComplete }) => {
             <Text style={styles.feedTabunselected}>Live Feed</Text>
             <View style={styles.button}>
               <View style={styles.previous}>
-                <Button title="Previous" onPress={() => handlePageChange(1)} />
+                <Button title="Previous" onPress={() => handlePageChange(2)} />
               </View>
               <View style={styles.next}>
-                <Button title="Next" onPress={() => handlePageChange(3)} />
+                <Button title="Next" onPress={() => handlePageChange(4)} />
               </View>
             </View>
           </View>
         </View>
-        <View key="4">
+
+        <View key="5">
           <View style={styles.pageFour}>
             <Text style={styles.liveFeedExplanation}>
               Use the live feed tab to see what other users in the community
@@ -179,7 +243,49 @@ const Onboarding = ({ onComplete }) => {
             <Text style={styles.feedTabselected}>Live Feed</Text>
             <View style={styles.button}>
               <View style={styles.previous}>
-                <Button title="Previous" onPress={() => handlePageChange(2)} />
+                <Button title="Previous" onPress={() => handlePageChange(3)} />
+              </View>
+              <View style={styles.next}>
+                <Button title="Next" onPress={() => handlePageChange(5)} />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View key="6">
+          <View style={styles.pageThree}>
+            <Text style={styles.reportComments2}>
+              Look out for the report button in the app. Please report anything
+              that concerns you.
+            </Text>
+            <Text style={styles.reportComments3}>
+              Let's keep MS Link a safe, inclusive space for everyone living with MS. 
+            </Text>
+            <View style={styles.reportExample}>
+              <Text style={styles.reportExampleText}>Report</Text>
+            </View>
+            <Text style={styles.reporComments}>
+              Worried about something you see?{' '}
+            </Text>
+            <View style={styles.profileTab}>
+              <FontAwesome name="user-circle" size={25} color={'black'} />
+            </View>
+            <Text style={styles.unselectedProfileTab}>Profile</Text>
+            <View style={styles.discussionTab}>
+              <MaterialCommunityIcons
+                name={'chat-plus-outline'}
+                size={25}
+                color={'black'}
+              />
+            </View>
+            <Text style={styles.discussionTabunselected}>Discussion</Text>
+            <View style={styles.FeedTab}>
+              <Entypo name={'text-document'} size={25} color={'black'} />
+            </View>
+            <Text style={styles.feedTabunselected}>Live Feed</Text>
+            <View style={styles.button}>
+              <View style={styles.previous}>
+                <Button title="Previous" onPress={() => handlePageChange(4)} />
               </View>
               <View style={styles.next}>
                 <Button
@@ -211,11 +317,11 @@ const styles = StyleSheet.create({
   },
   pageOne: {
     flex: 1,
-    backgroundColor: '#b8f2ef',
+    backgroundColor: '#8ab9eaad',
     alignContent: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 30,
+    margin: 40,
     borderRadius: 10,
   },
   pageTwo: {
@@ -250,7 +356,7 @@ const styles = StyleSheet.create({
     padding: 20,
     lineHeight: 30,
     fontSize: 18,
-    marginTop: 100,
+    marginTop: 60,
     backgroundColor: 'white',
     margin: 20,
   },
@@ -310,6 +416,12 @@ const styles = StyleSheet.create({
     fontSize: 17,
     justifyContent: 'center',
   },
+  storyPrompt2: {
+    padding: 15,
+    color: '#113ee2',
+    fontSize: 17,
+    justifyContent: 'center',
+  },
   story: {
     fontSize: 17,
     paddingLeft: 20,
@@ -366,20 +478,21 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 18,
     borderWidth: 1,
-    borderRadius: 10, 
+    borderRadius: 10,
+    borderColor: 'blue',
     padding: 10,
   },
   discussionExample: {
-    backgroundColor: '#e8d9f2',
+    backgroundColor: 'green',
     margin: 20,
     marginTop: 40,
     borderRadius: 10,
   },
   discussionExampleText: {
     fontSize: 20,
-    lineHeight: 25,
-    padding: 50,
-    color: '#7770c8',
+    lineHeight: 35,
+    padding: 30,
+    color: 'white',
   },
   viewComments: {
     marginLeft: -220,
@@ -395,7 +508,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderWidth: 1,
     borderRadius: 10,
-    padding: 10
+    borderColor: 'blue',
+    padding: 10,
   },
   userNameFeed: {
     color: 'deepskyblue',
@@ -432,8 +546,43 @@ const styles = StyleSheet.create({
   },
   featherStyle: {
     marginBottom: -40,
-    marginTop: 10,
-  }
+  },
+  previous: {
+    marginBottom: 50,
+  },
+  reportExample: {
+    backgroundColor: 'blue',
+    margin: 20,
+    marginTop: 40,
+    borderRadius: 10,
+  },
+  reportExampleText: {
+    fontSize: 20,
+    lineHeight: 30,
+    padding: 10,
+    color: 'white',
+  },
+  reporComments: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  reportComments2: {
+    fontSize: 18,
+    padding: 10,
+    lineHeight: 40,
+    borderWidth: 1,
+    borderColor: 'blue',
+    borderRadius: 20,
+    margin: 10,
+  },
+  reportComments3: {
+    fontSize: 18,
+    padding: 10,
+    lineHeight: 40,
+    margin: 10,
+    color: '#0b56eb',
+    fontWeight: 'bold'
+  },
 })
 
 export default Onboarding

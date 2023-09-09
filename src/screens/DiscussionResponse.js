@@ -17,6 +17,8 @@ import { Feather } from '@expo/vector-icons'
 import moment from 'moment'
 import ProfileEditModal from './ProfileEditModal'
 
+const MIN_TEXT_LENGTH = 0
+
 const DiscussionResponse = ({
   post,
   discussion_post_id,
@@ -28,6 +30,7 @@ const DiscussionResponse = ({
   const [comment, setComment] = useState('')
   const [commentList, setCommentList] = useState([])
   const [profileModalVisibility, setProfileModalVisibility] = useState({})
+  const [invalidInputLength, setInvalidInputLength] = useState(false)
   const { userId } = useContext(AuthContext)
 
   const apiUrl = ApiUtility()
@@ -35,15 +38,19 @@ const DiscussionResponse = ({
   //to post comments to existing comments on status
   const addComment = async () => {
     try {
-      const response = await axios.post(`${apiUrl}/DiscussionComments`, {
-        discussion_post_id: post.discussion_post_id,
-        userComment: comment,
-        user_id: userId,
-      })
+      if (comment.length > MIN_TEXT_LENGTH) {
+        const response = await axios.post(`${apiUrl}/DiscussionComments`, {
+          discussion_post_id: post.discussion_post_id,
+          userComment: comment,
+          user_id: userId,
+        })
 
-      setComment('')
-      fetchComments()
-      setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
+        setComment('')
+        fetchComments()
+        setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
+      } else {
+        setInvalidInputLength(true)
+      }
     } catch (error) {
       console.error('Error posting:', error)
     }
@@ -99,10 +106,10 @@ const DiscussionResponse = ({
   const renderComment = ({ item }) => {
     const currentUserComment = item.user_id === userId
     const isProfileModalVisible =
-        profileModalVisibility[item.user_profile_id] || false
+      profileModalVisibility[item.user_profile_id] || false
     return (
       <View style={styles.commentsContainer}>
-           <TouchableOpacity
+        <TouchableOpacity
           onPress={() => openProfileModal(item.user_profile_id)}
         >
           <Text style={styles.profileNameText}>{item.user_profile_name}</Text>
@@ -169,6 +176,11 @@ const DiscussionResponse = ({
           <Text style={styles.buttonText}>Post</Text>
         </TouchableOpacity>
       </View>
+      {invalidInputLength && (
+        <Text style={styles.errorMessage}>
+          Input must contain at least one character.
+        </Text>
+      )}
       <Text style={styles.reportPromptText}>
         Worried about something you see?
       </Text>
@@ -198,14 +210,14 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 20,
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 10,
     borderBottomWidth: 0.5,
     borderColor: '#aebdbf',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 10,
     marginLeft: 20,
     marginRight: 20,
   },
@@ -217,7 +229,7 @@ const styles = StyleSheet.create({
     borderColor: '#aebdbf',
     borderRadius: 5,
     paddingHorizontal: 10,
-    fontSize: 16,
+    fontSize: 17,
   },
   postUserName: {
     fontSize: 16,
@@ -286,7 +298,11 @@ const styles = StyleSheet.create({
   commentStyle: {
     marginRight: 120,
     marginBottom: 10,
-    
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 18,
+    paddingBottom: 15,
   },
 })
 

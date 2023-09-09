@@ -28,6 +28,8 @@ const PostResponse = ({
   const [commentList, setCommentList] = useState([])
   const { userId } = useContext(AuthContext)
   const [profileModalVisibility, setProfileModalVisibility] = useState({})
+  const [invalidInputLength, setInvalidInputLength] = useState(false)
+  const MIN_TEXT_LENGTH = 0
 
   const apiUrl = ApiUtility()
 
@@ -39,6 +41,7 @@ const PostResponse = ({
         },
       })
       setCommentList(response.data)
+      console.log(response.data)
     } catch (error) {
       console.error('Error fetching comments:', error)
     }
@@ -47,15 +50,19 @@ const PostResponse = ({
   //to post comments to existing comments on status
   const addComment = async () => {
     try {
-      const response = await axios.post(`${apiUrl}/PostResponse`, {
-        user_post_id: post.user_post_id,
-        userComment: comment,
-        user_id: userId,
-      })
+      if (comment.length > MIN_TEXT_LENGTH) {
+        const response = await axios.post(`${apiUrl}/PostResponse`, {
+          user_post_id: post.user_post_id,
+          userComment: comment,
+          user_id: userId,
+        })
 
-      setComment('')
-      fetchComments(user_post_id)
-      setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
+        setComment('')
+        fetchComments(user_post_id)
+        setCommentList([...commentList, response.data]) // Fetch updated comments after posting a new comment
+      } else {
+        setInvalidInputLength(true)
+      }
     } catch (error) {
       console.error('Error posting:', error)
     }
@@ -122,7 +129,7 @@ const PostResponse = ({
         <View style={styles.commentStyle}>
           <Text style={styles.commentText}>{item.post_comment}</Text>
           <Text style={styles.timeStampCommentStyle}>
-            {moment(item.user_post_timestamp).format('MMMM Do YYYY, h:mm a')}
+            {moment(item.post_comment_timestamp).format('MMMM Do YYYY, h:mm a')}
           </Text>
           {currentUserComment && (
             <TouchableOpacity
@@ -184,6 +191,11 @@ const PostResponse = ({
           <Text style={styles.buttonText}>Post</Text>
         </TouchableOpacity>
       </View>
+      {invalidInputLength && (
+        <Text style={styles.errorMessage}>
+          Input must contain at least one character.
+        </Text>
+      )}
       <Text style={styles.reportPromptText}>
         Worried about something you see?
       </Text>
@@ -221,7 +233,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 10,
     marginLeft: 20,
     marginRight: 20,
   },
@@ -299,6 +311,11 @@ const styles = StyleSheet.create({
   },
   timeStampCommentStyle: {
     marginTop: 10,
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 18,
+    paddingBottom: 15,
   },
 })
 

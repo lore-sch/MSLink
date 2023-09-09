@@ -147,15 +147,17 @@ const Discussion = () => {
         </TouchableOpacity>
       )}
       <View style={styles.postItemContainer}>
+        {/* FlatList component to render a list of 'posts' */}
         <FlatList
           data={posts}
           renderItem={({ item }) => (
             <View style={styles.postItem}>
+              {/* Renders background colour from postColours array */}
               <View
                 style={{
                   ...styles.discussionPost,
                   backgroundColor:
-                    postColors[item.discussion_post_id % postColors.length], // Use item.index
+                    postColors[item.discussion_post_id % postColors.length],
                 }}
               >
                 <Text style={styles.discussionText}>
@@ -228,7 +230,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     marginLeft: 300,
     marginTop: 30,
-    position: 'relative'
+    position: 'relative',
   },
   clearButton: {
     marginLeft: 300,
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     marginBottom: 180,
-    position: 'relative'
+    position: 'relative',
   },
   inputPrompt: {
     fontSize: 15,
@@ -303,7 +305,7 @@ const styles = StyleSheet.create({
   },
   discussionPost: {
     padding: 40,
-    borderRadius: 20, 
+    borderRadius: 20,
   },
   discussionText: {
     color: 'white',

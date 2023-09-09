@@ -8,7 +8,6 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  Platform,
   Modal,
   Image,
   Alert,
@@ -30,6 +29,7 @@ import ProfileEditModal from './ProfileEditModal'
 import SearchModal from './SearchModal'
 import ApiUtility from '../components/ApiUtility'
 import moment from 'moment'
+import * as Device from 'expo-device'
 
 const LiveFeed = ({ navigation }) => {
   const [enteredPost, setEnteredPost] = useState('')
@@ -50,24 +50,21 @@ const LiveFeed = ({ navigation }) => {
   const [profileModalVisibility, setProfileModalVisibility] = useState({})
   const [searchResults, setSearchResults] = useState(false)
   const [searchModalVisible, setSearchModalVisible] = useState(false)
-
+  const [invalidInputLength, setInvalidInputLength] = useState(false)
+  const MIN_TEXT_LENGTH = 0
   const apiUrl = ApiUtility()
 
-  //fetch images, posts and polls from users
+  //Function to fetch images, posts and polls from users
   const fetchPosts = async () => {
     try {
       const response = await axios.get(`${apiUrl}/LiveFeed`)
-
       const updatedPosts = response.data.map((post) => {
         if (post.type === 'user_image') {
           let absoluteImagePath = `http://localhost:3000/${post.image_path}`
-          if (Platform.OS === 'android') {
+          if (Device.OS === 'android') {
             absoluteImagePath = `http://10.0.2.2:3000/${post.image_path}`
           }
-          return {
-            ...post,
-            image_path: absoluteImagePath,
-          }
+          return { ...post, image_path: absoluteImagePath }
         } else if (post.type === 'user_poll') {
           // Handle the user_poll data here
           const pollOptions = [
@@ -76,13 +73,9 @@ const LiveFeed = ({ navigation }) => {
             post.user_poll_option_3,
           ]
           // Return a new object with the updated pollOptions array
-          return {
-            ...post,
-            pollOptions: pollOptions,
-          }
+          return { ...post, pollOptions: pollOptions }
         }
-
-        // Handle reactions here
+        // Handle reaction data
         const reactions = {
           post_like: post.post_like,
           post_love: post.post_love,
@@ -90,12 +83,8 @@ const LiveFeed = ({ navigation }) => {
           post_sad: post.post_sad,
           post_anger: post.post_anger,
         }
-
         // Return a new object with the updated reactions
-        return {
-          ...post,
-          reactions: reactions,
-        }
+        return { ...post, reactions: reactions }
       })
       setPosts(updatedPosts)
       setSearchResults(false)
@@ -168,13 +157,9 @@ const LiveFeed = ({ navigation }) => {
   }
 
   const fetchLiveFeedSearch = async (searchTerm = '') => {
-    let apiUrl = 'http://localhost:3000/LiveFeedSearch' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/LiveFeedSearch' // Override API URL for Android
-    }
+   
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${apiUrl}/LiveFeedSearch`, {
         params: {
           searchTerm: searchTerm,
         },
@@ -201,15 +186,9 @@ const LiveFeed = ({ navigation }) => {
   }
   //fetch comments on user posts- CHECK DUPLICATE CODE?
   const fetchComments = async (userPostId) => {
-    let apiUrl = 'http://localhost:3000/PostResponse' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/PostResponse' // Override API URL for Android
-    }
-
     //user_post_id to ensure comments related to clicked on post appear
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${apiUrl}/PostResponse`, {
         params: {
           user_post_id: userPostId,
         },
@@ -223,15 +202,9 @@ const LiveFeed = ({ navigation }) => {
   }
 
   const fetchCommentsOnImage = async (user_image_id) => {
-    let apiUrl = 'http://localhost:3000/ImageResponse' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/ImageResponse' // Override API URL for Android
-    }
-
-    //user_image_id to ensure comments related to clicked on post appear
+   //user_image_id to ensure comments related to clicked on post appear
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${apiUrl}/ImageResponse`, {
         params: {
           user_image_id: user_image_id,
         },
@@ -245,13 +218,8 @@ const LiveFeed = ({ navigation }) => {
   }
   //fetches reults of polls to display
   const fetchPollResults = async (user_poll_id) => {
-    let apiUrl = 'http://localhost:3000/pollResults' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/pollResults' // Override API URL for Android
-    }
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${apiUrl}/pollResults`, {
         params: {
           user_poll_id: user_poll_id,
         },
@@ -272,14 +240,8 @@ const LiveFeed = ({ navigation }) => {
 
   //Check if user has voted, to avoid them voting twice- ERROR
   const fetchUserVotingStatus = async (user_poll_id, user_id) => {
-    let apiUrl = 'http://localhost:3000/PollResults' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/PollResults' // Override API URL for Android
-    }
-
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${apiUrl}/pollResults`, {
         params: {
           user_poll_id: user_poll_id,
           user_id: userId,
@@ -307,37 +269,36 @@ const LiveFeed = ({ navigation }) => {
   //handles new posts by users
   const [isButtonDisabled, setIsButtonDisabled] = useState(false)
   const postButtonHandler = async () => {
-    let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/LiveFeed' // Override API URL for Android
-    }
-
     try {
       setIsButtonDisabled(true)
-      const formData = new FormData()
-      formData.append('userPost', enteredPost)
-      formData.append('user_id', userId)
+      if (enteredPost.length > MIN_TEXT_LENGTH) {
+        const formData = new FormData()
+        formData.append('userPost', enteredPost)
+        formData.append('user_id', userId)
 
-      if (image) {
-        // If an image is selected, add it to the form data
-        formData.append('image', {
-          uri: image,
-          name: `post_${Date.now()}.jpg`,
-          type: 'image/jpeg',
+        if (image) {
+          // If an image is selected, add it to the form data
+          formData.append('image', {
+            uri: image,
+            name: `post_${Date.now()}.jpg`,
+            type: 'image/jpeg',
+          })
+        }
+
+        const response = await axios.post(`${apiUrl}/LiveFeed`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         })
+
+        setEnteredPost('')
+        setCameraModalVisible(false) // Close the camera modal after posting
+        setImage(null)
+        fetchPosts()
+      } else {
+        // Update invalidInputText to true if enteredPost length is not valid
+        setInvalidInputLength(true)
       }
-
-      const response = await axios.post(apiUrl, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-
-      setEnteredPost('')
-      setCameraModalVisible(false) // Close the camera modal after posting
-      setImage(null)
-      fetchPosts()
     } catch (error) {
       console.error('Error posting:', error)
     }
@@ -383,12 +344,6 @@ const LiveFeed = ({ navigation }) => {
       })
 
       if (!result.canceled) {
-        let apiUrl = 'http://localhost:3000/LiveFeed' // Default API URL for iOS
-
-        if (Platform.OS === 'android') {
-          apiUrl = 'http://10.0.2.2:3000/LiveFeed' // Override API URL for Android
-        }
-
         try {
           const formData = new FormData()
           formData.append('userPost', enteredPost)
@@ -401,7 +356,7 @@ const LiveFeed = ({ navigation }) => {
             type: 'image/jpeg',
           })
 
-          const response = await axios.post(apiUrl, formData, {
+          const response = await axios.post(`${apiUrl}/LiveFeed`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -433,12 +388,6 @@ const LiveFeed = ({ navigation }) => {
   //api post to handle reactions on user posts
   const handlePostReaction = async (user_post_id, emojiIdentifier) => {
     try {
-      // Determine the API URL based on the platform (Android or iOS)
-      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
-      }
-
       const response = await axios.post(`${apiUrl}/SubmitReaction`, {
         user_post_id: user_post_id,
         reactionType: emojiIdentifier,
@@ -455,13 +404,6 @@ const LiveFeed = ({ navigation }) => {
   //api post to handle reactions on user images
   const handleImageReaction = async (user_image_id, emojiIdentifier) => {
     try {
-      console.log('Submitting image reaction for user_image_id:', user_image_id)
-      // Determine the API URL based on the platform (Android or iOS)
-      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
-      }
-
       const response = await axios.post(`${apiUrl}/SubmitImageReaction`, {
         user_image_id: user_image_id,
         reactionType: emojiIdentifier,
@@ -494,13 +436,8 @@ const LiveFeed = ({ navigation }) => {
 
   //post route for user voting in polls
   const pollResultsHandler = async (option, user_poll_id, user_id) => {
-    let apiUrl = 'http://localhost:3000/pollResults' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/pollResults' // Override API URL for Android
-    }
     try {
-      const response = await axios.post(apiUrl, {
+      const response = await axios.post(`${apiUrl}/pollResults`, {
         pollResult: option,
         user_poll_id: user_poll_id,
         user_id: userId,
@@ -544,7 +481,7 @@ const LiveFeed = ({ navigation }) => {
     }))
   }
 
-  //redners user profile name and their 'status' or post with reactions
+  //Renders user profile name, user post, reactions and profile clickable
   const MemoizedUserPost = React.memo(({ item }) => {
     const currentUserPost = item.user_id === userId
     if (item.type === 'user_post') {
@@ -563,7 +500,7 @@ const LiveFeed = ({ navigation }) => {
                 onPress={() => deletePost(item)}
                 style={styles.deleteComment}
               >
-                <Feather name='x' size={16} color='deepskyblue' />
+                <Feather name="x" size={16} color="deepskyblue" />
                 <Text style={styles.deleteCommentText}>Delete</Text>
               </TouchableOpacity>
             )}
@@ -629,7 +566,7 @@ const LiveFeed = ({ navigation }) => {
                 onPress={() => deleteUserImage(item)}
                 style={styles.deleteComment}
               >
-                <Feather name='x' size={16} color='deepskyblue' />
+                <Feather name="x" size={16} color="deepskyblue" />
                 <Text style={styles.deleteCommentText}>Delete</Text>
               </TouchableOpacity>
             )}
@@ -806,7 +743,7 @@ const LiveFeed = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.searchContainer}>
         <TouchableOpacity onPress={openSearchModal}>
-          <Ionicons name='ios-search' size={24} color='deepskyblue' />
+          <Ionicons name="ios-search" size={24} color="deepskyblue" />
         </TouchableOpacity>
       </View>
       <SearchModal
@@ -819,31 +756,36 @@ const LiveFeed = ({ navigation }) => {
       />
       {searchResults && ( // Show "Clear" button only if search term is not empty
         <TouchableOpacity style={styles.clearButton} onPress={clearSearch}>
-          <Feather name='x' size={24} color='red' />
+          <Feather name="x" size={24} color="red" />
         </TouchableOpacity>
       )}
       <View style={styles.statusInputContainer}>
         <TextInput
           style={styles.statusInput}
-          placeholder='Share with us...'
+          placeholder="Share with us..."
           multiline={true}
           onChangeText={postHandler}
           value={enteredPost}
         />
       </View>
+      {invalidInputLength && (
+        <Text style={styles.errorMessage}>
+          Input must contain at least one character.
+        </Text>
+      )}
       <View style={styles.optionContainer}>
         <Text style={styles.optionText}>Status</Text>
-        <Ionicons name='chatbox-outline' size={20} color='deepskyblue' />
+        <Ionicons name="chatbox-outline" size={20} color="deepskyblue" />
         <TouchableOpacity
           style={styles.optionText}
           onPress={() => setCameraModalVisible(true)}
         >
           <Text style={styles.optionText}>Photo</Text>
-          <FontAwesome name='photo' size={20} color='deepskyblue' />
+          <FontAwesome name="photo" size={20} color="deepskyblue" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.optionText} onPress={showPollModal}>
           <Text style={styles.optionText}>Poll</Text>
-          <AntDesign name='barschart' size={20} color='deepskyblue' />
+          <AntDesign name="barschart" size={20} color="deepskyblue" />
         </TouchableOpacity>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -855,7 +797,7 @@ const LiveFeed = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <Modal
-          animationType='slide'
+          animationType="slide"
           transparent={true}
           visible={isCameraModalVisible}
           onRequestClose={() => setCameraModalVisible(false)}
@@ -891,7 +833,7 @@ const LiveFeed = ({ navigation }) => {
           </View>
         </Modal>
         <Modal
-          animationType='slide'
+          animationType="slide"
           transparent={true}
           visible={isPollModalVisible}
           onRequestClose={hidePollModal}
@@ -923,7 +865,7 @@ const LiveFeed = ({ navigation }) => {
                 <PostResponse
                   post={selectedPost}
                   comments={comments}
-                  fetchComments={fetchComments}
+                  fetchPostComments={fetchComments}
                   user_post_id={selectedPost.user_post_id}
                   closePost={closePost}
                 />
@@ -937,7 +879,7 @@ const LiveFeed = ({ navigation }) => {
                 />
               ) : null}
               <TouchableOpacity style={styles.closeButton} onPress={closePost}>
-                <Feather name='x' size={14} color='white' />
+                <Feather name="x" size={14} color="white" />
               </TouchableOpacity>
             </Modal>
           )
@@ -1133,6 +1075,11 @@ const styles = StyleSheet.create({
   },
   nameAndDeleteDisplay: {
     flexDirection: 'row',
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 16,
+    paddingBottom: 15,
   },
 })
 

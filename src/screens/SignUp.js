@@ -8,9 +8,7 @@ import {
   TextInput,
   SafeAreaView,
   Modal,
-  Platform,
   React,
-  Alert,
 } from 'react-native'
 import axios from 'axios'
 import { validateEmail, validatePassword } from 'react-native-field-validator'
@@ -139,8 +137,9 @@ const SignUp = ({ showModal, setShowModal, setSuccessMessage }) => {
             </Text>
           )}
           <View style={styles.buttonContainer}>
+          <SquareButton title="Cancel" onPress={() => setShowModal(false)} />
             <SquareButton title="Sign Up" onPress={emailExistsHandler} />
-            <SquareButton title="Cancel" onPress={() => setShowModal(false)} />
+            
           </View>
         </View>
       </SafeAreaView>

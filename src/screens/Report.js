@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Platform,
   Modal,
 } from 'react-native'
 import axios from 'axios'
@@ -13,6 +12,7 @@ import { AuthContext } from '../components/AuthContext'
 import ModalDropdown from 'react-native-modal-dropdown'
 import { Feather } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
+import ApiUtility from '../components/ApiUtility'
 
 const SquareButton = ({ title, onPress }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
@@ -28,16 +28,12 @@ const Report = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState('')
   const [ReportSubmitted, setReportSubmitted] = useState(false)
   const navigation = useNavigation()
+  const apiUrl = ApiUtility()
 
   //Fetches report categories for dropdown menu
   const fetchReportCategories = async () => {
-    let apiUrl = 'http://localhost:3000/reportCategory' // Default API URL for iOS
-
-    if (Platform.OS === 'android') {
-      apiUrl = 'http://10.0.2.2:3000/reportCategory' // Override API URL for Android
-    }
     try {
-      const response = await axios.get(apiUrl)
+      const response = await axios.get(`${apiUrl}/DiscussionPost`)
 
       const categoryData = response.data
       setReportCategories(categoryData)
@@ -58,11 +54,6 @@ const Report = () => {
   //post report
   const handlePostReport = async () => {
     try {
-      // Determine the API URL based on the platform (Android or iOS)
-      let apiUrl = 'http://localhost:3000' // Default API URL for iOS
-      if (Platform.OS === 'android') {
-        apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
-      }
       const response = await axios.post(`${apiUrl}/Report`, {
         reportText: reportText,
         user_id: userId,
@@ -90,7 +81,7 @@ const Report = () => {
       <Text style={styles.reportPrompt}>Please choose a category: </Text>
       <ModalDropdown
         options={reportCategories.map((category) => category.report_category)}
-        defaultValue='Select one option:'
+        defaultValue="Select one option:"
         onSelect={(index, value) => {
           setSelectedCategory(value)
           setSelectedCategoryId(reportCategories[index].report_category_id)
@@ -110,21 +101,21 @@ const Report = () => {
 
       <View style={styles.buttonContainer}>
         <SquareButton
-          title='Report'
+          title="Report"
           onPress={() => handlePostReport(userId, selectedCategoryId)}
         />
-        <SquareButton title='Cancel' onPress={handleCancel} />
+        <SquareButton title="Cancel" onPress={handleCancel} />
       </View>
-      <Modal visible={ReportSubmitted} transparent={true} animationType='slide'>
+      <Modal visible={ReportSubmitted} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-          <Feather name='check' size={40} color='blue' />
+            <Feather name="check" size={40} color="blue" />
             <Text style={styles.popupTextThankYou}>
               Thank you for submitting your report.
-              </Text>
-              <Text style={styles.popupText}>
-                Our team will look into this matter as soon as possible.
-              </Text>
+            </Text>
+            <Text style={styles.popupText}>
+              Our team will look into this matter as soon as possible.
+            </Text>
             <TouchableOpacity
               onPress={() => {
                 setReportSubmitted(false) // Close the pop-up
@@ -192,7 +183,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     writingDirection: 'ltr',
     fontSize: 18,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -236,10 +227,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 30,
     paddingTop: 20,
-
   },
   popupTextThankYou: {
-    fontSize: 16, 
+    fontSize: 16,
     lineHeight: 30,
     paddingTop: 20,
     color: 'blue',
@@ -247,7 +237,7 @@ const styles = StyleSheet.create({
   closeButton: {
     color: 'blue',
     marginTop: 20,
-    fontSize: 16, 
+    fontSize: 16,
   },
 })
 export default Report

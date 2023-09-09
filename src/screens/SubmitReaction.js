@@ -1,12 +1,7 @@
 import React, { useState } from 'react'
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Platform,
-} from 'react-native'
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import axios from 'axios'
+import ApiUtility from '../components/ApiUtility'
 
 const SubmitReaction = ({
   onReactionSelect,
@@ -22,21 +17,14 @@ const SubmitReaction = ({
     { identifier: 'anger', emoji: '😡' },
   ]
 
+  const apiUrl = ApiUtility()
   const [selectedEmoji, setSelectedEmoji] = useState(selectedReaction)
 
   const handleEmojiClick = async (emojiIdentifier) => {
     setSelectedEmoji(emojiIdentifier)
-    console.log('Submitting reaction for user_post_id:', user_post_id);
-   
     if (user_post_id) {
       onReactionSelect(user_post_id, emojiIdentifier)
       try {
-        // Determine the API URL based on the platform (Android or iOS)
-        let apiUrl = 'http://localhost:3000' // Default API URL for iOS
-        if (Platform.OS === 'android') {
-          apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
-        }
-
         // Make an HTTP POST request to the server to submit the reaction
         const response = await axios.post(`${apiUrl}/SubmitReaction`, {
           user_post_id: user_post_id,
@@ -47,13 +35,7 @@ const SubmitReaction = ({
       }
     } else {
       onReactionSelect(user_image_id, emojiIdentifier)
-      console.log('Submitting reaction for user_image_id:', user_image_id);
       try {
-        // Determine the API URL based on the platform (Android or iOS)
-        let apiUrl = 'http://localhost:3000' // Default API URL for iOS
-        if (Platform.OS === 'android') {
-          apiUrl = 'http://10.0.2.2:3000' // Override API URL for Android
-        }
         // Make an HTTP POST request to the server to submit the reaction
         const response = await axios.post(`${apiUrl}/SubmitImageReaction`, {
           user_image_id: user_image_id,
