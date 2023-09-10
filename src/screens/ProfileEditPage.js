@@ -19,8 +19,7 @@ import * as ImagePicker from 'expo-image-picker'
 import ApiUtility from '../components/ApiUtility'
 import * as Device from 'expo-device'
 
-//event handlers for editing user name
-//TO DO: Set up image selection and user change image ?? image picker
+//Event handlers for editing user name
 const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
   const { userId } = useContext(AuthContext)
   const [isEditing, setIsEditing] = useState(false)
@@ -28,6 +27,7 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
   const [username, setUsername] = useState('')
   const [userStory, setUserStory] = useState('')
   const [isCameraModalVisible, setCameraModalVisible] = useState(false)
+  
   const [image, setImage] = useState(null)
 
   const apiUrl = ApiUtility()
@@ -124,6 +124,8 @@ const ProfileEditPage = ({ user_profile_id, hideEditButton }) => {
   const handleChangeUsername = (text) => {
     setUsername(text)
   }
+
+ 
 
   const toggleCameraModal = () => {
     setCameraModalVisible(!isCameraModalVisible)

@@ -1,12 +1,32 @@
 // User's story which displays on their profile page
-import { Text, TextInput, ScrollView, View } from 'react-native'
+import {
+  Text,
+  TextInput,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  Modal,
+} from 'react-native'
+import { useState } from 'react'
 import React from 'react'
+import StoryShareModal from './StoryShareModal'
 
 //Called from database
 const Story = ({ isEditing, userStory, setUserStory }) => {
+  const [storyModal, setStoryModal] = useState(false)
   //event handler for editing story- in profile page
   const handleStoryChange = (text) => {
     setUserStory(text)
+  }
+
+  //shows modal to create new poll
+  const showStoryModal = () => {
+    setStoryModal(true)
+  }
+
+  //close poll modal
+  const hideStoryModal = () => {
+    setStoryModal(false)
   }
   return (
     <ScrollView
@@ -21,7 +41,9 @@ const Story = ({ isEditing, userStory, setUserStory }) => {
               View our guide:
             </Text>
             <View style={styles.guideTextStyle}>
-              <Text style={styles.guideText}>Sharing your journey </Text>
+              <TouchableOpacity onPress={showStoryModal}>
+                <Text style={styles.guideText}>Sharing your journey </Text>
+              </TouchableOpacity>
             </View>
           </View>
           <TextInput
@@ -31,6 +53,18 @@ const Story = ({ isEditing, userStory, setUserStory }) => {
             onChangeText={handleStoryChange}
             scrollEnabled={false} // Disable internal scrolling
           />
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={storyModal}
+            onRequestClose={hideStoryModal}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <StoryShareModal closeStoryShare={hideStoryModal} />
+              </View>
+            </View>
+          </Modal>
         </View>
       ) : (
         <Text style={styles.storyText}>{userStory}</Text>
@@ -82,8 +116,8 @@ const styles = {
     marginHorizontal: 75,
     marginVertical: 10,
     padding: 5,
-    borderColor: 'blue'
-  }
+    borderColor: 'blue',
+  },
 }
 
 export default Story
